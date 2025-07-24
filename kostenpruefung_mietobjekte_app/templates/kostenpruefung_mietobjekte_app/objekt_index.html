@@ -1,67 +1,24 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <title>Objekte</title>
-    <style>
-        body { margin: 0; font-family: Arial, sans-serif; }
-        .container { display: flex; }
-        .navbar {
-            width: 200px;
-            background: #f0f0f0;
-            height: 100vh;
-            padding: 20px 0;
-        }
-        .navbar a {
-            display: block;
-            padding: 10px 20px;
-            color: #333;
-            text-decoration: none;
-            margin-bottom: 10px;
-        }
-        .navbar a:hover {
-            background: #ddd;
-        }
-        .content {
-            flex: 1;
-            padding: 40px;
-        }
-        .objekt-list {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .objekt-list th, .objekt-list td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-        }
-        .anlegen-btn {
-            float: right;
-            padding: 8px 16px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .anlegen-btn:hover {
-            background: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
 </head>
 <body>
-<div class="container">
-    <nav class="navbar">
-        <a href="{% url 'objekt_index' %}">Objekt</a>
-        <a href="#">Mieter</a>
-        <a href="#">Kosten</a>
-        <a href="#">Konto</a>
-        <a href="#">Auswertung</a>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="#">Mieter</a>
+        <a class="sidebar-link" href="#">Kosten</a>
+        <a class="sidebar-link" href="#">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
     </nav>
-    <div class="content">
-        <button class="anlegen-btn">Anlegen</button>
+    <div class="main-content">
+        <button class="action-btn">Anlegen</button>
         <h2>Alle Objekte</h2>
-        <table class="objekt-list">
+        <table class="object-table">
             <tr>
                 <th>Name</th>
                 <th>Straße/Hausnummer</th>
