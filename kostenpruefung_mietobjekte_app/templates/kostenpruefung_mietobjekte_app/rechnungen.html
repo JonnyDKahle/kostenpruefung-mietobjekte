@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechnungen</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter' %}">Mieter</a>
+        <a class="sidebar-link" href="#">Kosten</a>
+        <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
+            <li><a href="{% url 'rechnungen' %}">Rechnungen</a></li>
+            <li><a href="{% url 'kostenarten' %}">Kostenarten</a></li>
+            <li><a href="{% url 'lieferanten' %}">Lieferant</a></li>
+        </ul>
+        <a class="sidebar-link" href="#">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <button class="action-btn">Anlegen</button>
+        <h2>Alle Rechnungen</h2>
+        <table class="object-table">
+            <tr>
+                <th>Datum</th>
+                <th>Rechnungsnummer</th>
+                <th>Name</th>
+                <th>Betrag</th>
+                <th>Art</th>
+                <th>Lieferant(en)</th>
+                <th>Bezahlt am</th>
+                <th>Mietobjekte</th>
+            </tr>
+            {% for r in rechnungen %}
+            <tr>
+                <td>{{ r.datum }}</td>
+                <td>{{ r.rechnungsnummer }}</td>
+                <td>{{ r.name }}</td>
+                <td>{{ r.betrag }}</td>
+                <td>{{ r.art }}</td>
+                <td>
+                    {% for l in r.lieferant.all %}
+                        {{ l.firmenname }}{% if not forloop.last %},<br>{% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ r.bezahlt_am }}</td>
+                <td>
+                    {% for o in r.mietobjekte.all %}
+                        {{ o.name }}{% if not forloop.last %},<br>{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Keine Rechnungen vorhanden.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>

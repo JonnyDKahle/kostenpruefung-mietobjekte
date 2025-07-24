@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kostenarten</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter' %}">Mieter</a>
+        <a class="sidebar-link" href="#">Kosten</a>
+        <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
+            <li><a href="{% url 'rechnungen' %}">Rechnungen</a></li>
+            <li><a href="{% url 'kostenarten' %}">Kostenarten</a></li>
+            <li><a href="{% url 'lieferanten' %}">Lieferant</a></li>
+        </ul>
+        <a class="sidebar-link" href="#">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <button class="action-btn">Anlegen</button>
+        <h2>Alle Kostenarten</h2>
+        <table class="object-table">
+            <tr>
+                <th>Name</th>
+            </tr>
+            {% for k in kostenarten %}
+            <tr>
+                <td>{{ k.name }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="1">Keine Kostenarten vorhanden.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>
