@@ -1,8 +1,11 @@
 from django.db import models
 import datetime
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class Mietobjekt(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mietobjekte_created", null=True, blank=True)
     name = models.CharField(max_length=255)
     strasse_hausnummer = models.CharField(max_length=255)
     plz = models.IntegerField()
@@ -26,6 +29,7 @@ class Mietobjekt(models.Model):
         return self.name
 
 class Mieter(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mieter_created", null=True, blank=True)
     vorname = models.CharField(max_length=255)
     nachname = models.CharField(max_length=255)
     strasse_hausnummer = models.CharField(max_length=255)
@@ -60,6 +64,7 @@ class Mieter(models.Model):
     
 
 class Rechnung(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungen_created", null=True, blank=True)
     datum = models.DateField()
     rechnungsnummer = models.CharField(max_length=255)
     name = models.CharField(max_length=255) # Descriptive name to identify the payment
@@ -76,12 +81,14 @@ class Rechnung(models.Model):
         return f"Rechnung {self.rechnungsnummer} - {self.name}"
     
 class Rechnungsart(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungsarten_created", null=True, blank=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
     
 class Lieferant(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lieferanten_created", null=True, blank=True)
     firmenname = models.CharField(max_length=255)
     vorname = models.CharField(max_length=255)
     nachname = models.CharField(max_length=255)
