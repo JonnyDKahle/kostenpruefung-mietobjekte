@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Mietobjekt
+from .models import Mietobjekt, Mieter
 
 # Create your views here.
 def test_view(request):
@@ -9,3 +9,7 @@ def test_view(request):
 def objekt_index(request):
     objekte = Mietobjekt.objects.all()
     return render(request, 'kostenpruefung_mietobjekte_app/objekt_index.html', {'objekte': objekte})
+
+def mieter(request):
+    mieter = Mieter.objects.all()
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})

@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mieter</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter' %}">Mieter</a>
+        <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
+            <li><a href="#">Laufend</a></li>
+            <li><a href="#">Zukuenftig</a></li>
+            <li><a href="#">Archiv</a></li>
+        </ul>
+        <a class="sidebar-link" href="#">Kosten</a>
+        <a class="sidebar-link" href="#">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <button class="action-btn">Anlegen</button>
+        <h2>Alle Mieter</h2>
+        <table class="object-table">
+            <tr>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Straße/Hausnummer</th>
+                <th>PLZ</th>
+                <th>Ort</th>
+                <th>Land</th>
+                <th>Telefon</th>
+                <th>E-Mail</th>
+                <th>Geburtsdatum</th>
+                <th>Vertragsbeginn</th>
+                <th>Vertragsende</th>
+                <th>Kaltmiete</th>
+                <th>Nebenkosten</th>
+                <th>Kaution</th>
+            </tr>
+            {% for m in mieter %}
+            <tr>
+                <td>{{ m.vorname }}</td>
+                <td>{{ m.nachname }}</td>
+                <td>{{ m.strasse_hausnummer }}</td>
+                <td>{{ m.plz }}</td>
+                <td>{{ m.ort }}</td>
+                <td>{{ m.land }}</td>
+                <td>{{ m.telefon }}</td>
+                <td>{{ m.e_mail }}</td>
+                <td>{{ m.geburtsdatum }}</td>
+                <td>{{ m.vertragsbeginn }}</td>
+                <td>{{ m.vertragsende }}</td>
+                <td>{{ m.kaltmiete }}</td>
+                <td>{{ m.nebenkosten }}</td>
+                <td>{{ m.kaution }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="14">Keine Mieter vorhanden.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>
