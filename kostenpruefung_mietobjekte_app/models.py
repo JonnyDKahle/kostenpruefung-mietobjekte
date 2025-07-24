@@ -8,14 +8,14 @@ class Mietobjekt(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mietobjekte_created", null=True, blank=True)
     name = models.CharField(max_length=255)
     strasse_hausnummer = models.CharField(max_length=255)
-    plz = models.IntegerField()
+    plz = models.CharField(max_length=10) # 2 - 10 characters (numbers and letters)
     ort = models.CharField(max_length=100)
     land = models.CharField(max_length=100)
 
     kaufdatum = models.DateField()
-    kaufpreis = models.DecimalField()
-    darlehen = models.DecimalField()
-    grundschuld = models.DecimalField()
+    kaufpreis = models.DecimalField(max_digits=10, decimal_places=2)
+    darlehen = models.DecimalField(max_digits=10, decimal_places=2)
+    grundschuld = models.DecimalField(max_digits=10, decimal_places=2)
     FARBE_CHOICES = [
         ('rot', 'Rot'),
         ('blau', 'Blau'),
@@ -33,7 +33,7 @@ class Mieter(models.Model):
     vorname = models.CharField(max_length=255)
     nachname = models.CharField(max_length=255)
     strasse_hausnummer = models.CharField(max_length=255)
-    plz = models.CharField()
+    plz = models.CharField(max_length=10) # 2 - 10 characters (numbers and letters)
     ort = models.CharField(max_length=100)
     land = models.CharField(max_length=100)
     telefon = models.CharField(max_length=100)
@@ -43,9 +43,9 @@ class Mieter(models.Model):
     vertragsbeginn = models.DateField()
     vertragsende = models.DateField()
 
-    kaltmiete = models.DecimalField()
-    nebenkosten = models.DecimalField()
-    kaution = models.DecimalField()
+    kaltmiete = models.DecimalField(max_digits=10, decimal_places=2)
+    nebenkosten = models.DecimalField(max_digits=10, decimal_places=2)
+    kaution = models.DecimalField(max_digits=10, decimal_places=2)
 
     mietobjekte = models.ManyToManyField('Mietobjekt')
 
@@ -68,7 +68,7 @@ class Rechnung(models.Model):
     datum = models.DateField()
     rechnungsnummer = models.CharField(max_length=255)
     name = models.CharField(max_length=255) # Descriptive name to identify the payment
-    betrag = models.DecimalField()
+    betrag = models.DecimalField(max_digits=10, decimal_places=2)
     art = models.ForeignKey('Rechnungsart', on_delete=models.PROTECT)
     lieferant = models.ManyToManyField('Lieferant')
     bezahlt_am = models.DateField()
