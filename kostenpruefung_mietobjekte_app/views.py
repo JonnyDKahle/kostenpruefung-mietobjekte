@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant
-from .forms import MietobjektForm, RechnungForm, RechnungsartForm
+from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm
 
 # Create your views here.
 
@@ -61,3 +61,15 @@ def rechnungsart_create(request):
 def lieferanten(request):
     lieferanten = Lieferant.objects.all()
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant.html', {'lieferanten': lieferanten})
+
+def lieferant_create(request):
+    if request.method == 'POST':
+        form = LieferantForm(request.POST)
+        if form.is_valid():
+            lieferant = form.save(commit=False)
+            lieferant.created_by = request.user
+            lieferant.save()
+            return redirect('lieferanten')
+    else:
+        form = LieferantForm()
+    return render(request, 'kostenpruefung_mietobjekte_app/lieferant_form.html', {'form': form})
