@@ -100,11 +100,15 @@ class Lieferant(models.Model):
     e_mail = models.EmailField()
     telefon = models.CharField(max_length=100)
 
-# class Konto(models.Model):
-#     buchungstag = models.DateField()
-#     kontoinhaber = models.CharField(max_length=255) # 
-#     buchungstext =      # (Aus Kontoauszug)
-#     wertstellung =      # (Datum)
-#     buchungsart =       # (Lastschrift - z.B. Ueberweisung)
-#     mieter = models.ManyToManyField('Mieter')
-#     lieferanten = models.ManyToManyField('Lieferant')
+class Konto(models.Model):
+    buchungstag = models.DateField()
+    kontoinhaber = models.CharField(max_length=255) 
+    buchungstext = models.CharField(max_length=255) # (Aus Kontoauszug)
+    werterstellung = models.DateField() # (Datum)
+    buchungsart = models.ForeignKey('Rechnungsart', on_delete=models.PROTECT) # (Lastschrift - z.B. Ueberweisung)
+    mieter = models.ManyToManyField('Mieter')
+    lieferanten = models.ManyToManyField('Lieferant')
+    # unnamed column = (Aufteilung auf Multiselect)
+
+class Buchungsart(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buchungsart_created", null=True, blank=True)
