@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung
+from .models import Mietobjekt, Rechnung, Rechnungsart
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -24,3 +24,8 @@ class RechnungForm(forms.ModelForm):
             'datum': forms.DateInput(attrs={'type': 'date'}),
             'bezahlt_am': forms.DateInput(attrs={'type': 'date'}),
         }
+    
+class RechnungsartForm(forms.ModelForm):
+    class Meta:
+        model = Rechnungsart
+        exclude = ['created_by']

@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechnungsart anlegen</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="main-content">
+    <h2>Neue Rechnungsart anlegen</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="action-btn">Create</button>
+        <a href="{% url 'kostenarten' %}" class="action-btn" style="background:#888;">Cancel</a>
+    </form>
+</div>
+</body>
+</html>
