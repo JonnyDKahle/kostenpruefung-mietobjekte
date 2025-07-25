@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant
-from .forms import MietobjektForm
+from .forms import MietobjektForm, RechnungForm
 
 # Create your views here.
-def test_view(request):
-    return HttpResponse("it works")
 
 def objekt_index(request):
     objekte = Mietobjekt.objects.all()
@@ -30,6 +28,19 @@ def mieter(request):
 def rechnungen(request):
     rechnungen = Rechnung.objects.all()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnungen.html', {'rechnungen': rechnungen})
+
+def rechnung_create(request):
+    if request.method == 'POST':
+        form = RechnungForm(request.POST)
+        if form.is_valid():
+            rechnung = form.save(commit=False)
+            rechnung.created_by = request.user
+            rechnung.save()
+            form.save_m2m()
+            return redirect('rechnungen')
+    else:
+        form = RechnungForm()
+    return render(request, 'kostenpruefung_mietobjekte_app/rechnung_form.html', {'form': form})
 
 def kostenarten(request):
     kostenarten = Rechnungsart.objects.all()

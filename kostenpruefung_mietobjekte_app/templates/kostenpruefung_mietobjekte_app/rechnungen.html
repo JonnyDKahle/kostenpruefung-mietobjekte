@@ -21,8 +21,10 @@
         <a class="sidebar-link" href="#">Auswertung</a>
     </nav>
     <div class="main-content">
-        <button class="action-btn">Anlegen</button>
         <h2>Alle Rechnungen</h2>
+                <form action="{% url 'rechnung_create' %}" method="get" style="margin-bottom: 16px;">
+            <button class="action-btn" type="submit">Anlegen</button>
+        </form>
         <table class="object-table">
             <tr>
                 <th>Datum</th>
