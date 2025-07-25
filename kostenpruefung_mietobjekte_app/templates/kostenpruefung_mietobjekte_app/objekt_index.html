@@ -16,8 +16,10 @@
         <a class="sidebar-link" href="#">Auswertung</a>
     </nav>
     <div class="main-content">
-        <button class="action-btn">Anlegen</button>
         <h2>Alle Objekte</h2>
+        <form action="{% url 'mietobjekt_create' %}" method="get" style="margin-bottom: 16px;">
+            <button class="action-btn" type="submit">Anlegen</button>
+        </form>
         <table class="object-table">
             <tr>
                 <th>Name</th>
