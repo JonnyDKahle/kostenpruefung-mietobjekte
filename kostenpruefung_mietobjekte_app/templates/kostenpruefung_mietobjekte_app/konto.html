@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Konto</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>Alle Kontobewegungen</h2>
+        <form action="{% url 'konto_create' %}" method="get" style="margin-bottom: 16px;">
+            <button class="action-btn" type="submit">Anlegen</button>
+        </form>
+        <table class="object-table">
+            <tr>
+                <th>Buchungstag</th>
+                <th>Kontoinhaber</th>
+                <th>Buchungstext</th>
+                <th>Werterstellung</th>
+                <th>Buchungsart</th>
+                <th>Mieter</th>
+                <th>Lieferanten</th>
+            </tr>
+            {% for k in konten %}
+            <tr>
+                <td>{{ k.buchungstag }}</td>
+                <td>{{ k.kontoinhaber }}</td>
+                <td>{{ k.buchungstext }}</td>
+                <td>{{ k.werterstellung }}</td>
+                <td>{{ k.buchungsart }}</td>
+                <td>
+                    {% for m in k.mieter.all %}
+                        {{ m.vorname }} {{ m.nachname }}{% if not forloop.last %},<br>{% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for l in k.lieferanten.all %}
+                        {{ l.firmenname }}{% if not forloop.last %},<br>{% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">Keine Kontobewegungen vorhanden.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>
