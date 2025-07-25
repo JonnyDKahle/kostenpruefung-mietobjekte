@@ -101,6 +101,7 @@ class Lieferant(models.Model):
     telefon = models.CharField(max_length=100)
 
 class Konto(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="konto_created", null=True, blank=True)
     buchungstag = models.DateField()
     kontoinhaber = models.CharField(max_length=255) 
     buchungstext = models.CharField(max_length=255) # (Aus Kontoauszug)

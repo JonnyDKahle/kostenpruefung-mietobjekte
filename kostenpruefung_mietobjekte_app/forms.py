@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant
+from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -35,3 +35,15 @@ class LieferantForm(forms.ModelForm):
     class Meta:
         model = Lieferant
         exclude = ['created_by']
+
+class KontoForm(forms.ModelForm):
+    buchungstag = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    werterstellung = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+    class Meta:
+        model = Konto
+        exclude = ['created_by']
+        widgets = {
+            'buchungstag': forms.DateInput(attrs={'type': 'date'}),
+            'werterstellung': forms.DateInput(attrs={'type': 'date'}),
+        }
