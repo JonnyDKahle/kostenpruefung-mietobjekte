@@ -43,9 +43,20 @@ def mieter(request):
 def rechnungen(request):
     rechnungen = Rechnung.objects.prefetch_related(
         'lieferant',
-        'mietobjekt__mieteinheiten__prozent_mieteinheit'
+        'mietobjekt__mieteinheiten__prozent_mieteinheit',
+        'prozent_rechnung'
     )
-    return render(request, 'kostenpruefung_mietobjekte_app/rechnungen.html', {'rechnungen': rechnungen})
+    for r in rechnungen:
+        total = 0
+        for mieteinheit in r.mietobjekt.mieteinheiten.all():
+            for prozent in mieteinheit.prozent_mieteinheit.all():
+                if prozent in r.prozent_rechnung.all():
+                    total += prozent.prozent or 0
+        # Add a custom attribute to each Rechnung object
+        r.percent_not_100 = abs(total - 100) > 0.01
+    return render(request, 'kostenpruefung_mietobjekte_app/rechnungen.html', {
+        'rechnungen': rechnungen,
+    })
 
 def rechnung_create(request):
     if request.method == 'POST':

@@ -51,7 +51,7 @@
                 </td>
                 <td>{{ r.bezahlt_am }}</td>
                 <td>{{ r.mietobjekt.name }}</td>
-                <td>
+                <td {% if r.percent_not_100 %}style="background-color:#ffe5e5;"{% endif %}>
                     {% for mieteinheit in r.mietobjekt.mieteinheiten.all %}
                         {{ mieteinheit.name }}
                         {% for prozent in mieteinheit.prozent_mieteinheit.all %}
