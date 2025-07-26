@@ -8,15 +8,13 @@
 </head>
 <body>
 <div class="main-content">
-    <h2>Prozente für Rechnung {{ rechnung.rechnungsnummer }} bearbeiten</h2>
+    <h2>Prozente für Rechnung {{ rechnung.rechnungsnummer }} ({{ rechnung.betrag }} Euro) bearbeiten</h2>
     <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
         <table>
             <tr>
-                <th>ID</th>
                 <th>Mieteinheit</th>
-                <th>Rechnung</th>
                 <th>Prozent</th>
             </tr>
             {% for form in formset %}
@@ -25,9 +23,9 @@
                 {% endif %}
                 <tr>
                     <td>{{ form.instance.mieteinheit.name }}</td>
-                    <td style="display:none;">{{ form.id }}</td> <!-- Hidden field for id -->
-                    <td style="display:none;">{{ form.mieteinheit }}</td> <!-- Hidden field for mieteinheit -->
-                    <td style="display:none;">{{ form.rechnung }}</td> <!-- Hidden field for rechnung -->
+                    <td style="display:none;">{{ form.id }}</td> <!-- Hidden field -->
+                    <td style="display:none;">{{ form.mieteinheit }}</td> <!-- Hidden field -->
+                    <td style="display:none;">{{ form.rechnung }}</td> <!-- Hidden field -->
                     <td>{{ form.prozent }}</td>
                 </tr>
             {% endfor %}
