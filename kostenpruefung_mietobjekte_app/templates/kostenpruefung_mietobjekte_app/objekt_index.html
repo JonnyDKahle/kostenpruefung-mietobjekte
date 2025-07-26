@@ -32,6 +32,7 @@
                 <th>Darlehen</th>
                 <th>Grundschuld</th>
                 <th>Farbe</th>
+                <th>Mieteinheiten</th> <!-- New column -->
             </tr>
             {% for o in objekte %}
             <tr>
@@ -45,10 +46,20 @@
                 <td>{{ o.darlehen }}</td>
                 <td>{{ o.grundschuld }}</td>
                 <td>{{ o.get_farbe_display }}</td>
+                <td>
+                    {% for einheit in o.mieteinheiten.all %}
+                        {{ einheit.name }}<br>
+                    {% empty %}
+                        <span style="color: #888;">Keine Mieteinheiten</span><br>
+                    {% endfor %}
+                    <form action="{% url 'mieteinheit_create' o.id %}" method="get" style="margin-top: 8px;">
+                        <button class="action-btn" type="submit">Mieteinheit anlegen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="10">Keine Objekte vorhanden.</td>
+                <td colspan="11">Keine Objekte vorhanden.</td>
             </tr>
             {% endfor %}
         </table>

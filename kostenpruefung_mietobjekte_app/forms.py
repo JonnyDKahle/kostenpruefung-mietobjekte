@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto
+from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -10,6 +10,11 @@ class MietobjektForm(forms.ModelForm):
         widgets = {
             'kaufdatum': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class MieteinheitForm(forms.ModelForm):
+    class Meta:
+        model = Mieteinheit
+        fields = ['name']
 
 #### Mieter Here!! 
 

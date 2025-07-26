@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.db.models import Prefetch
-from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto
-from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm
+from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit
+from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm
 
 # Create your views here.
 
@@ -21,6 +21,19 @@ def mietobjekt_create(request):
     else:
         form = MietobjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mietobjekt_form.html', {'form': form})
+
+def mieteinheit_create(request, mietobjekt_id):
+    mietobjekt = Mietobjekt.objects.get(id=mietobjekt_id)
+    if request.method == 'POST':
+        form = MieteinheitForm(request.POST)
+        if form.is_valid():
+            mieteinheit = form.save(commit=False)
+            mieteinheit.mietobjekt = mietobjekt  # Prefill and hide from user
+            mieteinheit.save()
+            return redirect('objekt_index')
+    else:
+        form = MieteinheitForm()
+    return render(request, 'kostenpruefung_mietobjekte_app/mieteinheit_form.html', {'form': form, 'mietobjekt': mietobjekt})
 
 def mieter(request):
     mieter = Mieter.objects.all()

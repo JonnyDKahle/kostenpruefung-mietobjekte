@@ -1,12 +1,14 @@
 from django.urls import path
 from .views import objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto
 from .views import mietobjekt_create, rechnung_create, rechnungsart_create, lieferant_create, konto_create
+from .views import mieteinheit_create
 
 
 
 urlpatterns = [
     path('', objekt_index, name='objekt_index'),
     path('mietobjekt/create/', mietobjekt_create, name='mietobjekt_create'),
+    path('mieteinheit/create/<int:mietobjekt_id>/', mieteinheit_create, name='mieteinheit_create'),
     path('mieter/', mieter, name='mieter'),
     path('rechnungen/', rechnungen, name='rechnungen'),
     path('rechnung/create/', rechnung_create, name='rechnung_create'),
