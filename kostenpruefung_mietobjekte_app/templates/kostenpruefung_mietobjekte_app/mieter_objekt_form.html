@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mieter anlegen</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="main-content">
+    <h2>Neuen Mieter anlegen (1/2)</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Weiter</button>
+    </form>
+</div>
+</body>
+</html>

@@ -55,6 +55,7 @@ class Mieter(models.Model):
     kaution = models.DecimalField(max_digits=10, decimal_places=2)
 
     mietobjekte = models.ManyToManyField('Mietobjekt')
+    mieteinheiten = models.ManyToManyField('Mieteinheit')
 
     @property
     def mietstatus(self):

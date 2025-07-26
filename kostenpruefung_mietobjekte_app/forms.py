@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
+from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mieter
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -17,6 +17,28 @@ class MieteinheitForm(forms.ModelForm):
         fields = ['name']
 
 #### Mieter Here!! 
+
+class MieterObjektForm(forms.ModelForm):
+    class Meta:
+        model = Mieter
+        exclude = ['mieteinheiten']
+        widgets = {
+            'mietobjekte': forms.SelectMultiple,
+            'geburtsdatum': forms.DateInput(attrs={'type': 'date'}),
+            'vertragsbeginn': forms.DateInput(attrs={'type': 'date'}),
+            'vertragsende': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class MieterEinheitForm(forms.ModelForm):
+    class Meta:
+        model = Mieter
+        fields = ['mieteinheiten'] # For many to many on mieter model
+
+    def __init__(self, *args, **kwargs):
+        mietobjekte = kwargs.pop('mietobjekte', None)
+        super().__init__(*args, **kwargs)
+        if mietobjekte:
+            self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt__in=mietobjekte)
 
 class RechnungForm(forms.ModelForm):
     datum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))

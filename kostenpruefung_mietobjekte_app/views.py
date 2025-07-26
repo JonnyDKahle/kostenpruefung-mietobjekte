@@ -4,6 +4,7 @@ from django.db.models import Prefetch
 from django.forms import modelformset_factory
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
+from .forms import MieterObjektForm, MieterEinheitForm
 
 # Create your views here.
 
@@ -39,6 +40,37 @@ def mieteinheit_create(request, mietobjekt_id):
 def mieter(request):
     mieter = Mieter.objects.all()
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
+
+def mieter_create_step1(request):
+    if request.method == 'POST':
+        form = MieterObjektForm(request.POST)
+        if form.is_valid():
+            mieter = form.save(commit=False)
+            mieter.created_by = request.user
+            mieter.save()
+            form.save_m2m()
+            # Pass selected Mietobjekte IDs to next step
+            mietobjekte_ids = [obj.id for obj in form.cleaned_data['mietobjekte']]
+            request.session['mieter_id'] = mieter.id
+            request.session['mietobjekte_ids'] = mietobjekte_ids
+            return redirect('mieter_create_step2')
+    else:
+        form = MieterObjektForm()
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_objekt_form.html', {'form': form})
+
+def mieter_create_step2(request):
+    mieter_id = request.session.get('mieter_id')
+    mietobjekte_ids = request.session.get('mietobjekte_ids', [])
+    mietobjekte = Mietobjekt.objects.filter(id__in=mietobjekte_ids)
+    mieter = Mieter.objects.get(id=mieter_id)
+    if request.method == 'POST':
+        form = MieterEinheitForm(request.POST, mietobjekte=mietobjekte)
+        if form.is_valid():
+            mieter.mieteinheiten.set(form.cleaned_data['mieteinheiten'])
+            return redirect('mieter')
+    else:
+        form = MieterEinheitForm(mietobjekte=mietobjekte)
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_einheit_form.html', {'form': form, 'mieter': mieter})
 
 def rechnungen(request):
     rechnungen = Rechnung.objects.prefetch_related(
