@@ -65,17 +65,26 @@ def prozent_bulk_update(request, rechnung_id):
     mieteinheiten = rechnung.mietobjekt.mieteinheiten.all()
     ProzentFormSet = modelformset_factory(Prozent, form=ProzentForm, extra=0, can_delete=False)
 
-    # Get or create Prozent objects for all mieteinheiten of this rechnung
     for mieteinheit in mieteinheiten:
         Prozent.objects.get_or_create(rechnung=rechnung, mieteinheit=mieteinheit)
 
     queryset = Prozent.objects.filter(rechnung=rechnung, mieteinheit__in=mieteinheiten)
 
     if request.method == 'POST':
+        print("POST data:", request.POST)  # Debug: print POST data
         formset = ProzentFormSet(request.POST, queryset=queryset)
+        print("Formset is valid:", formset.is_valid())  # Debug: print formset validity
         if formset.is_valid():
-            formset.save()
+            instances = formset.save(commit=False)
+            print("Instances to save:", instances)  # Debug: print instances
+            for instance in instances:
+                instance.rechnung = rechnung
+                instance.save()
+            formset.save_m2m()
+            print("Saved successfully, redirecting.")
             return redirect('rechnungen')
+        else:
+            print("Formset errors:", formset.errors)  # Debug: print errors
     else:
         formset = ProzentFormSet(queryset=queryset)
 

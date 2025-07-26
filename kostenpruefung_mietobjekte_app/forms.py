@@ -33,7 +33,8 @@ class RechnungForm(forms.ModelForm):
 class ProzentForm(forms.ModelForm):
     class Meta:
         model = Prozent
-        fields = ['prozent']  # Only show the percentage field
+        # fields = ['prozent']  # Only show the percentage field
+        fields = '__all__'
         widgets = {
             'prozent': forms.NumberInput(attrs={'step': '0.01'}),
         }
