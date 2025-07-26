@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit
+from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -28,6 +28,14 @@ class RechnungForm(forms.ModelForm):
         widgets = {
             'datum': forms.DateInput(attrs={'type': 'date'}),
             'bezahlt_am': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class ProzentForm(forms.ModelForm):
+    class Meta:
+        model = Prozent
+        fields = ['prozent']  # Only show the percentage field
+        widgets = {
+            'prozent': forms.NumberInput(attrs={'step': '0.01'}),
         }
     
 class RechnungsartForm(forms.ModelForm):

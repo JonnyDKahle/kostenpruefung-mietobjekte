@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Prozente bearbeiten</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="main-content">
+    <h2>Prozente für Rechnung {{ rechnung.rechnungsnummer }} bearbeiten</h2>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <th>Mieteinheit</th>
+                <th>Prozent</th>
+            </tr>
+            {% for form in formset %}
+            <tr>
+                <td>{{ form.instance.mieteinheit.name }}</td>
+                <td>{{ form.prozent }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit" class="action-btn">Speichern</button>
+        <a href="{% url 'rechnungen' %}" class="action-btn" style="background:#888;">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

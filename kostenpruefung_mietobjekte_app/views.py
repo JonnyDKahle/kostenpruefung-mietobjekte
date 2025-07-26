@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.db.models import Prefetch
-from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit
-from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm
+from django.forms import modelformset_factory
+from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
+from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
 
 # Create your views here.
 
@@ -58,6 +59,30 @@ def rechnung_create(request):
     else:
         form = RechnungForm()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnung_form.html', {'form': form})
+
+def prozent_bulk_update(request, rechnung_id):
+    rechnung = Rechnung.objects.get(id=rechnung_id)
+    mieteinheiten = rechnung.mietobjekt.mieteinheiten.all()
+    ProzentFormSet = modelformset_factory(Prozent, form=ProzentForm, extra=0, can_delete=False)
+
+    # Get or create Prozent objects for all mieteinheiten of this rechnung
+    for mieteinheit in mieteinheiten:
+        Prozent.objects.get_or_create(rechnung=rechnung, mieteinheit=mieteinheit)
+
+    queryset = Prozent.objects.filter(rechnung=rechnung, mieteinheit__in=mieteinheiten)
+
+    if request.method == 'POST':
+        formset = ProzentFormSet(request.POST, queryset=queryset)
+        if formset.is_valid():
+            formset.save()
+            return redirect('rechnungen')
+    else:
+        formset = ProzentFormSet(queryset=queryset)
+
+    return render(request, 'kostenpruefung_mietobjekte_app/prozent_bulk_form.html', {
+        'formset': formset,
+        'rechnung': rechnung,
+    })
 
 def kostenarten(request):
     kostenarten = Rechnungsart.objects.all()

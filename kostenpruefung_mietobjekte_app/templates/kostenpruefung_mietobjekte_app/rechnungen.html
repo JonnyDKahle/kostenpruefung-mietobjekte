@@ -61,6 +61,9 @@
                         {% endfor %}
                         <br>
                     {% endfor %}
+                    <form action="{% url 'prozent_bulk_update' r.id %}" method="get" style="margin-top: 8px;">
+                        <button class="action-btn" type="submit">%</button>
+                    </form>
                 </td>
             </tr>
             {% empty %}
