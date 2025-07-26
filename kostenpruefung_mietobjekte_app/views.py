@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.db.models import Prefetch
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm
 
@@ -26,7 +27,10 @@ def mieter(request):
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
 
 def rechnungen(request):
-    rechnungen = Rechnung.objects.all()
+    rechnungen = Rechnung.objects.prefetch_related(
+        'lieferant',
+        'mietobjekt__mieteinheiten__prozent_mieteinheit'
+    )
     return render(request, 'kostenpruefung_mietobjekte_app/rechnungen.html', {'rechnungen': rechnungen})
 
 def rechnung_create(request):
