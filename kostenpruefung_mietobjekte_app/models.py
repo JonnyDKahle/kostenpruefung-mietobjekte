@@ -121,12 +121,13 @@ class Konto(models.Model):
     buchungstag = models.DateField()
     kontoinhaber = models.CharField(max_length=255) 
     buchungstext = models.CharField(max_length=255) # (Aus Kontoauszug)
+    betrag = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     werterstellung = models.DateField() # (Datum)
     buchungsart = models.ForeignKey('Rechnungsart', on_delete=models.PROTECT) # (Lastschrift - z.B. Ueberweisung)
-    mieter = models.ManyToManyField('Mieter')
+    mieter = models.ManyToManyField('Mieter', blank=True)
     lieferanten = models.ManyToManyField('Lieferant')
     # rechnungen = models.ManyToManyField('Rechnung')
-    # mietobjekt = models.ManyToManyField('Mietobjekt')
+    mietobjekt = models.ManyToManyField('Mietobjekt')
     # unnamed column = (Aufteilung auf Multiselect)
 
 class Buchungsart(models.Model):

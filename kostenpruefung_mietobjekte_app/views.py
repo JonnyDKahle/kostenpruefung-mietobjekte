@@ -195,13 +195,13 @@ def auswertung(request):
     chart_data = {}
 
     if selected_objekt:
-        # Calculate Einnahmen (from Konto, if applicable)
-        kontos = Konto.objects.filter(mieter__mietobjekte=selected_objekt)
+        # Calculate Einnahmen (from Konto)
+        kontos = Konto.objects.filter(mietobjekt=selected_objekt)
         for konto in kontos:
             betrag = getattr(konto, 'betrag', 0)
-            kategorie = getattr(konto, 'buchungsart', None)
-            if betrag >= 0:
+            if betrag > 0:  # Only include positive amounts as Einnahmen
                 einnahmen_sum += betrag
+                kategorie = getattr(konto, 'buchungsart', None)
                 cat_name = kategorie.name if kategorie else "Sonstige"
                 chart_data[cat_name] = chart_data.get(cat_name, 0) + betrag
 
