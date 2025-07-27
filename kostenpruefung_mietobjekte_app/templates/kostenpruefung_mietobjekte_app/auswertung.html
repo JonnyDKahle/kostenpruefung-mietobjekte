@@ -48,22 +48,25 @@
             <p><strong>Ergebnis:</strong> {{ ergebnis|floatformat:2 }} €</p>
         </div>
         <div class="auswertung-right">
-            <p><strong>Chart.js Pie Chart:</strong></p>
-            <canvas id="ausgabenChart" width="400" height="400"></canvas>
+            <p><strong>Ausgaben Pie Chart:</strong></p>
+            <div id="ausgabenGoogleChart" style="width: 400px; height: 400px;"></div>
             
             <p><strong>Google Chart Inside Conditional:</strong></p>
             <div id="googleDummyChart1" style="width: 400px; height: 400px; margin-top: 20px;"></div>
         </div>
     </div>
     
-    <script id="chartLabelsData" type="application/json">{{ chart_labels|json_script:"chartLabelsData" }}</script>
-    <script id="chartValuesData" type="application/json">{{ chart_values|json_script:"chartValuesData" }}</script>
+    {{ chart_labels|json_script:"chartLabelsData" }}
+    {{ chart_values|json_script:"chartValuesData" }}
+    
     <script>
         console.log("Script inside conditional block started");
         
-        // Chart.js logic
+        // Google Chart for Ausgaben
         try {
-            console.log("Attempting to parse chart labels and values");
+            console.log("Setting up Google Chart for Ausgaben");
+            
+            // Parse chart data
             const chartLabels = JSON.parse(document.getElementById('chartLabelsData').textContent || '[]');
             const chartValues = JSON.parse(document.getElementById('chartValuesData').textContent || '[]');
             
@@ -71,38 +74,41 @@
             console.log("Chart Values:", chartValues);
             
             if (chartLabels.length === 0 || chartValues.length === 0) {
-                console.warn("No data available for the chart.");
+                console.warn("No data available for the Ausgaben chart.");
             } else {
-                console.log("Initializing Chart.js chart");
-                const canvasElement = document.getElementById('ausgabenChart');
-                console.log("Canvas element:", canvasElement);
+                // Initialize Google Chart
+                google.charts.load('current', { packages: ['corechart'] });
+                google.charts.setOnLoadCallback(drawAusgabenChart);
                 
-                const ctx = canvasElement.getContext('2d');
-                console.log("Canvas context:", ctx);
-                
-                const chart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            label: 'Ausgaben nach Buchungsart',
-                            data: chartValues,
-                            backgroundColor: [
-                                '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7'
-                            ],
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'bottom' }
-                        }
+                function drawAusgabenChart() {
+                    console.log("Drawing Ausgaben Chart");
+                    const chartDiv = document.getElementById('ausgabenGoogleChart');
+                    console.log("Ausgaben chart div:", chartDiv);
+                    
+                    // Convert data to Google Charts format
+                    const data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Buchungsart');
+                    data.addColumn('number', 'Betrag');
+                    
+                    // Add rows from the chart data
+                    for (let i = 0; i < chartLabels.length; i++) {
+                        data.addRow([chartLabels[i], parseFloat(chartValues[i])]);
                     }
-                });
-                console.log("Chart.js chart initialized");
+                    
+                    const options = {
+                        title: 'Ausgaben nach Buchungsart',
+                        pieHole: 0.4,
+                        colors: ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7'],
+                        legend: { position: 'bottom' }
+                    };
+                    
+                    const chart = new google.visualization.PieChart(chartDiv);
+                    chart.draw(data, options);
+                    console.log("Ausgaben chart drawn");
+                }
             }
         } catch (error) {
-            console.error("Error in Chart.js initialization:", error);
+            console.error("Error in Ausgaben chart initialization:", error);
         }
 
         // Google Charts logic - Inside conditional
