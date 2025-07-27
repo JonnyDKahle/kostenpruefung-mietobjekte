@@ -41,6 +41,9 @@
                 <th>Kaltmiete</th>
                 <th>Nebenkosten</th>
                 <th>Kaution</th>
+                <th>Mietobjekte</th>
+                <th>Mieteinheiten</th>
+                <th>Mietstatus</th>
             </tr>
             {% for m in mieter %}
             <tr>
@@ -58,10 +61,25 @@
                 <td>{{ m.kaltmiete }}</td>
                 <td>{{ m.nebenkosten }}</td>
                 <td>{{ m.kaution }}</td>
+                <td>
+                    {% for obj in m.mietobjekte.all %}
+                        {{ obj.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for einheit in m.mieteinheiten.all %}
+                        {{ einheit.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>{{ m.mietstatus }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="14">Keine Mieter vorhanden.</td>
+                <td colspan="17">Keine Mieter vorhanden.</td>
             </tr>
             {% endfor %}
         </table>

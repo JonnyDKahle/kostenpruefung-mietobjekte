@@ -9,7 +9,7 @@ from .forms import MieterObjektForm, MieterEinheitForm
 # Create your views here.
 
 def objekt_index(request):
-    objekte = Mietobjekt.objects.all()
+    objekte = Mietobjekt.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/objekt_index.html', {'objekte': objekte})
 
 def mietobjekt_create(request):
@@ -25,7 +25,9 @@ def mietobjekt_create(request):
     return render(request, 'kostenpruefung_mietobjekte_app/mietobjekt_form.html', {'form': form})
 
 def mieteinheit_create(request, mietobjekt_id):
-    mietobjekt = Mietobjekt.objects.get(id=mietobjekt_id)
+    mietobjekt = Mietobjekt.objects.filter(id=mietobjekt_id, created_by=request.user).first()
+    if not mietobjekt:
+        return HttpResponse("Nicht erlaubt", status=403)
     if request.method == 'POST':
         form = MieteinheitForm(request.POST)
         if form.is_valid():
@@ -38,7 +40,7 @@ def mieteinheit_create(request, mietobjekt_id):
     return render(request, 'kostenpruefung_mietobjekte_app/mieteinheit_form.html', {'form': form, 'mietobjekt': mietobjekt})
 
 def mieter(request):
-    mieter = Mieter.objects.all()
+    mieter = Mieter.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
 
 def mieter_create_step1(request):
@@ -60,9 +62,11 @@ def mieter_create_step1(request):
 
 def mieter_create_step2(request):
     mieter_id = request.session.get('mieter_id')
+    mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
+    if not mieter:
+        return HttpResponse("Nicht erlaubt", status=403)
     mietobjekte_ids = request.session.get('mietobjekte_ids', [])
-    mietobjekte = Mietobjekt.objects.filter(id__in=mietobjekte_ids)
-    mieter = Mieter.objects.get(id=mieter_id)
+    mietobjekte = Mietobjekt.objects.filter(id__in=mietobjekte_ids, created_by=request.user)
     if request.method == 'POST':
         form = MieterEinheitForm(request.POST, mietobjekte=mietobjekte)
         if form.is_valid():
@@ -73,7 +77,7 @@ def mieter_create_step2(request):
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_einheit_form.html', {'form': form, 'mieter': mieter})
 
 def rechnungen(request):
-    rechnungen = Rechnung.objects.prefetch_related(
+    rechnungen = Rechnung.objects.filter(created_by=request.user).prefetch_related(
         'lieferant',
         'mietobjekt__mieteinheiten__prozent_mieteinheit',
         'prozent_rechnung'
@@ -104,7 +108,9 @@ def rechnung_create(request):
     return render(request, 'kostenpruefung_mietobjekte_app/rechnung_form.html', {'form': form})
 
 def prozent_bulk_update(request, rechnung_id):
-    rechnung = Rechnung.objects.get(id=rechnung_id)
+    rechnung = Rechnung.objects.filter(id=rechnung_id, created_by=request.user).first()
+    if not rechnung:
+        return HttpResponse("Nicht erlaubt", status=403)
     mieteinheiten = rechnung.mietobjekt.mieteinheiten.all()
     ProzentFormSet = modelformset_factory(Prozent, form=ProzentForm, extra=0, can_delete=False)
 
@@ -137,7 +143,7 @@ def prozent_bulk_update(request, rechnung_id):
     })
 
 def kostenarten(request):
-    kostenarten = Rechnungsart.objects.all()
+    kostenarten = Rechnungsart.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/kostenarten.html', {'kostenarten': kostenarten})
 
 def rechnungsart_create(request):
@@ -153,7 +159,7 @@ def rechnungsart_create(request):
     return render(request, 'kostenpruefung_mietobjekte_app/rechnungsart_form.html', {'form': form})
 
 def lieferanten(request):
-    lieferanten = Lieferant.objects.all()
+    lieferanten = Lieferant.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant.html', {'lieferanten': lieferanten})
 
 def lieferant_create(request):
@@ -169,7 +175,7 @@ def lieferant_create(request):
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant_form.html', {'form': form})
 
 def konto(request):
-    konten = Konto.objects.all()
+    konten = Konto.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/konto.html', {'konten': konten})
 
 def konto_create(request):
@@ -186,9 +192,9 @@ def konto_create(request):
     return render(request, 'kostenpruefung_mietobjekte_app/konto_form.html', {'form': form})
 
 def auswertung(request):
-    mietobjekte = Mietobjekt.objects.all()
+    mietobjekte = Mietobjekt.objects.filter(created_by=request.user)
     selected_id = request.GET.get('mietobjekt')
-    selected_objekt = Mietobjekt.objects.filter(id=selected_id).first() if selected_id else None
+    selected_objekt = Mietobjekt.objects.filter(id=selected_id, created_by=request.user).first() if selected_id else None
 
     einnahmen_sum = 0
     ausgaben_sum = 0
@@ -196,7 +202,7 @@ def auswertung(request):
 
     if selected_objekt:
         # Calculate Einnahmen (from Konto)
-        kontos = Konto.objects.filter(mietobjekt=selected_objekt)
+        kontos = Konto.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
         for konto in kontos:
             betrag = getattr(konto, 'betrag', 0)
             if betrag > 0:  # Only include positive amounts as Einnahmen
@@ -206,13 +212,13 @@ def auswertung(request):
                 chart_data[cat_name] = chart_data.get(cat_name, 0) + betrag
 
         # Calculate Ausgaben (from Rechnung)
-        rechnungen = Rechnung.objects.filter(mietobjekt=selected_objekt)
+        rechnungen = Rechnung.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
         for rechnung in rechnungen:
             ausgaben_sum += rechnung.betrag
 
         # Group Ausgaben by art/buchungsart
         ausgaben_by_art = (
-            Rechnung.objects.filter(mietobjekt=selected_objekt)
+            Rechnung.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
             .values('art__name')  # Group by art name
             .annotate(total=Sum('betrag'))  # Sum up betrag for each art
         )
@@ -223,7 +229,7 @@ def auswertung(request):
 
         # Group Einnahmen by art/buchungsart
         einnahmen_by_art = (
-            Konto.objects.filter(mietobjekt=selected_objekt, betrag__gt=0)
+            Konto.objects.filter(mietobjekt=selected_objekt, betrag__gt=0, created_by=request.user)
             .values('buchungsart__name')  # Group by buchungsart name
             .annotate(total=Sum('betrag'))  # Sum up betrag for each buchungsart
         )
