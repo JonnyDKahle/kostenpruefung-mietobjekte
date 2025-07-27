@@ -184,3 +184,45 @@ def konto_create(request):
     else:
         form = KontoForm()
     return render(request, 'kostenpruefung_mietobjekte_app/konto_form.html', {'form': form})
+
+def auswertung(request):
+    mietobjekte = Mietobjekt.objects.all()
+    selected_id = request.GET.get('mietobjekt')
+    selected_objekt = Mietobjekt.objects.filter(id=selected_id).first() if selected_id else None
+
+    einnahmen = []
+    ausgaben = []
+    einnahmen_sum = 0
+    ausgaben_sum = 0
+    chart_data = {}
+
+    if selected_objekt:
+        # Filter Konto through Mieter and Mietobjekt
+        kontos = Konto.objects.filter(mieter__mietobjekte=selected_objekt)
+        for konto in kontos:
+            betrag = getattr(konto, 'betrag', 0)
+            kategorie = getattr(konto, 'buchungsart', None)
+            if betrag >= 0:
+                einnahmen_sum += betrag
+                cat_name = kategorie.name if kategorie else "Sonstige"
+                chart_data[cat_name] = chart_data.get(cat_name, 0) + betrag
+            else:
+                ausgaben_sum += abs(betrag)
+        einnahmen = einnahmen_sum
+        ausgaben = ausgaben_sum
+
+    ergebnis = einnahmen_sum - ausgaben_sum
+
+    # Prepare chart labels and values
+    chart_labels = list(chart_data.keys())
+    chart_values = list(chart_data.values())
+
+    return render(request, 'kostenpruefung_mietobjekte_app/auswertung.html', {
+        'mietobjekte': mietobjekte,
+        'selected_objekt': selected_objekt,
+        'einnahmen': einnahmen,
+        'ausgaben': ausgaben,
+        'ergebnis': ergebnis,
+        'chart_labels': chart_labels,
+        'chart_values': chart_values,
+    })

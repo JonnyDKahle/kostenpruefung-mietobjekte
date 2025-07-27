@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto, mieter_create_step1, 
-                    mieter_create_step2)
+from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto, auswertung)
 from .views import mietobjekt_create, rechnung_create, rechnungsart_create, lieferant_create, konto_create
-from .views import mieteinheit_create, prozent_bulk_update
+from .views import mieteinheit_create, prozent_bulk_update, mieter_create_step1, mieter_create_step2
 
 
 
@@ -22,4 +21,5 @@ urlpatterns = [
     path('lieferant/create/', lieferant_create, name='lieferant_create'),
     path('konto/', konto, name='konto'),
     path('konto/create/', konto_create, name='konto_create'),
+    path('auswertung/', auswertung, name='auswertung'),
 ]

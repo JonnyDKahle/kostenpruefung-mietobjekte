@@ -125,6 +125,8 @@ class Konto(models.Model):
     buchungsart = models.ForeignKey('Rechnungsart', on_delete=models.PROTECT) # (Lastschrift - z.B. Ueberweisung)
     mieter = models.ManyToManyField('Mieter')
     lieferanten = models.ManyToManyField('Lieferant')
+    # rechnungen = models.ManyToManyField('Rechnung')
+    # mietobjekt = models.ManyToManyField('Mietobjekt')
     # unnamed column = (Aufteilung auf Multiselect)
 
 class Buchungsart(models.Model):

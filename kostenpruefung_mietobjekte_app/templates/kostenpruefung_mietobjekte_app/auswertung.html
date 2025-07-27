@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Auswertung</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+    <style>
+        .auswertung-flex { display: flex; gap: 40px; }
+        .auswertung-left { flex: 1; }
+        .auswertung-right { width: 400px; }
+    </style>
+</head>
+<body>
+<div class="main-content">
+    <h2>Auswertung</h2>
+    <form method="get">
+        <label for="mietobjekt">Mietobjekt wählen:</label>
+        <select name="mietobjekt" id="mietobjekt" onchange="this.form.submit()">
+            <option value="">-- Bitte wählen --</option>
+            {% for obj in mietobjekte %}
+                <option value="{{ obj.id }}" {% if selected_objekt and obj.id == selected_objekt.id %}selected{% endif %}>{{ obj.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% if selected_objekt %}
+    <div class="auswertung-flex">
+        <div class="auswertung-left">
+            <h3>{{ selected_objekt.name }}</h3>
+            <p><strong>Einnahmen:</strong> {{ einnahmen|floatformat:2 }} €</p>
+            <p><strong>Ausgaben:</strong> {{ ausgaben|floatformat:2 }} €</p>
+            <p><strong>Ergebnis:</strong> {{ ergebnis|floatformat:2 }} €</p>
+        </div>
+        <div class="auswertung-right">
+            <canvas id="einnahmenChart"></canvas>
+        </div>
+    </div>
+    <script id="chartLabels" type="application/json">{{ chart_labels|json_script }}</script>
+    <script id="chartValues" type="application/json">{{ chart_values|json_script }}</script>
+    <script>
+        const ctx = document.getElementById('einnahmenChart').getContext('2d');
+        const chartLabels = JSON.parse(document.getElementById('chartLabels').textContent);
+        const chartValues = JSON.parse(document.getElementById('chartValues').textContent);
+
+        const chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Einnahmen nach Kategorie',
+                    data: chartValues,
+                    backgroundColor: [
+                        '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</div>
+</body>
+</html>
