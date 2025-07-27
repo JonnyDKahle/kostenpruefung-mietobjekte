@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Chart Test</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+    <div id="googleDummyChart" style="width: 400px; height: 400px;"></div>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawDummyChart);
+
+        function drawDummyChart() {
+            const data = google.visualization.arrayToDataTable([
+                ['Category', 'Value'],
+                ['Category 1', 30],
+                ['Category 2', 50],
+                ['Category 3', 20]
+            ]);
+
+            const options = {
+                title: 'Dummy Data',
+                pieHole: 0.4,
+                colors: ['#ff6384', '#36a2eb', '#cc65fe']
+            };
+
+            const chart = new google.visualization.PieChart(document.getElementById('googleDummyChart'));
+            chart.draw(data, options);
+        }
+    </script>
+</body>
+</html>

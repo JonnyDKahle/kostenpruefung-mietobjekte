@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Sum
 from django.forms import modelformset_factory
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
@@ -210,11 +210,18 @@ def auswertung(request):
         for rechnung in rechnungen:
             ausgaben_sum += rechnung.betrag
 
-    ergebnis = einnahmen_sum - ausgaben_sum
+        # Group Ausgaben by art/buchungsart
+        ausgaben_by_art = (
+            Rechnung.objects.filter(mietobjekt=selected_objekt)
+            .values('art__name')  # Group by art name
+            .annotate(total=Sum('betrag'))  # Sum up betrag for each art
+        )
 
-    # Prepare chart labels and values
-    chart_labels = list(chart_data.keys())
-    chart_values = list(chart_data.values())
+        # Prepare data for the pie chart
+        chart_labels = [item['art__name'] for item in ausgaben_by_art]
+        chart_values = [float(item['total']) for item in ausgaben_by_art]  # Convert Decimal to float
+
+    ergebnis = einnahmen_sum - ausgaben_sum
 
     return render(request, 'kostenpruefung_mietobjekte_app/auswertung.html', {
         'mietobjekte': mietobjekte,
@@ -222,6 +229,6 @@ def auswertung(request):
         'einnahmen': einnahmen_sum,
         'ausgaben': ausgaben_sum,
         'ergebnis': ergebnis,
-        'chart_labels': chart_labels,
-        'chart_values': chart_values,
+        'chart_labels': chart_labels if selected_objekt else [],
+        'chart_values': chart_values if selected_objekt else [],
     })

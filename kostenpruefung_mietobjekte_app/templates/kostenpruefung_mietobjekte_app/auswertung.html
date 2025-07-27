@@ -4,12 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Auswertung</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
     <style>
         .auswertung-flex { display: flex; gap: 40px; }
         .auswertung-left { flex: 1; }
         .auswertung-right { width: 400px; }
+        
+        /* Add border to chart containers to make them visible */
+        #ausgabenChart, #googleDummyChart1, #googleDummyChart2 {
+            border: 1px solid red;
+        }
     </style>
 </head>
 <body>
@@ -24,6 +30,15 @@
             {% endfor %}
         </select>
     </form>
+    
+    <!-- Debug information section -->
+    <div style="background-color: #f5f5f5; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+        <h3>Debug Information:</h3>
+        <p>Chart Labels: {{ chart_labels }}</p>
+        <p>Chart Values: {{ chart_values }}</p>
+        <p>Selected Object: {{ selected_objekt.name|default:"None" }}</p>
+    </div>
+    
     {% if selected_objekt %}
     <div class="auswertung-flex">
         <div class="auswertung-left">
@@ -33,37 +48,131 @@
             <p><strong>Ergebnis:</strong> {{ ergebnis|floatformat:2 }} €</p>
         </div>
         <div class="auswertung-right">
-            <canvas id="einnahmenChart"></canvas>
+            <p><strong>Chart.js Pie Chart:</strong></p>
+            <canvas id="ausgabenChart" width="400" height="400"></canvas>
+            
+            <p><strong>Google Chart Inside Conditional:</strong></p>
+            <div id="googleDummyChart1" style="width: 400px; height: 400px; margin-top: 20px;"></div>
         </div>
     </div>
-    <script id="chartLabels" type="application/json">{{ chart_labels|json_script }}</script>
-    <script id="chartValues" type="application/json">{{ chart_values|json_script }}</script>
+    
+    <script id="chartLabelsData" type="application/json">{{ chart_labels|json_script:"chartLabelsData" }}</script>
+    <script id="chartValuesData" type="application/json">{{ chart_values|json_script:"chartValuesData" }}</script>
     <script>
-        const ctx = document.getElementById('einnahmenChart').getContext('2d');
-        const chartLabels = JSON.parse(document.getElementById('chartLabels').textContent);
-        const chartValues = JSON.parse(document.getElementById('chartValues').textContent);
-
-        const chart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Einnahmen nach Kategorie',
-                    data: chartValues,
-                    backgroundColor: [
-                        '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7'
-                    ],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+        console.log("Script inside conditional block started");
+        
+        // Chart.js logic
+        try {
+            console.log("Attempting to parse chart labels and values");
+            const chartLabels = JSON.parse(document.getElementById('chartLabelsData').textContent || '[]');
+            const chartValues = JSON.parse(document.getElementById('chartValuesData').textContent || '[]');
+            
+            console.log("Chart Labels:", chartLabels);
+            console.log("Chart Values:", chartValues);
+            
+            if (chartLabels.length === 0 || chartValues.length === 0) {
+                console.warn("No data available for the chart.");
+            } else {
+                console.log("Initializing Chart.js chart");
+                const canvasElement = document.getElementById('ausgabenChart');
+                console.log("Canvas element:", canvasElement);
+                
+                const ctx = canvasElement.getContext('2d');
+                console.log("Canvas context:", ctx);
+                
+                const chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Ausgaben nach Buchungsart',
+                            data: chartValues,
+                            backgroundColor: [
+                                '#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7'
+                            ],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+                console.log("Chart.js chart initialized");
             }
-        });
+        } catch (error) {
+            console.error("Error in Chart.js initialization:", error);
+        }
+
+        // Google Charts logic - Inside conditional
+        try {
+            console.log("Loading Google Charts (inside conditional)");
+            google.charts.load('current', { packages: ['corechart'] });
+            google.charts.setOnLoadCallback(drawDummyChart1);
+
+            function drawDummyChart1() {
+                console.log("Drawing Google Chart 1");
+                const chartDiv = document.getElementById('googleDummyChart1');
+                console.log("Google Chart div 1:", chartDiv);
+                
+                const data = google.visualization.arrayToDataTable([
+                    ['Category', 'Value'],
+                    ['Category 1', 30],
+                    ['Category 2', 50],
+                    ['Category 3', 20]
+                ]);
+
+                const options = {
+                    title: 'Dummy Data (Inside Conditional)',
+                    pieHole: 0.4,
+                    colors: ['#ff6384', '#36a2eb', '#cc65fe']
+                };
+
+                const chart = new google.visualization.PieChart(chartDiv);
+                chart.draw(data, options);
+                console.log("Google Chart 1 drawn");
+            }
+        } catch (error) {
+            console.error("Error in Google Chart 1 initialization:", error);
+        }
     </script>
     {% endif %}
 </div>
+
+<h3>Google Chart Outside Conditional:</h3>
+<div id="googleDummyChart2" style="width: 400px; height: 400px;"></div>
+<script>
+    try {
+        console.log("Loading Google Charts (outside conditional)");
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawDummyChart2);
+
+        function drawDummyChart2() {
+            console.log("Drawing Google Chart 2");
+            const chartDiv = document.getElementById('googleDummyChart2');
+            console.log("Google Chart div 2:", chartDiv);
+            
+            const data = google.visualization.arrayToDataTable([
+                ['Category', 'Value'],
+                ['Category A', 40],
+                ['Category B', 35],
+                ['Category C', 25]
+            ]);
+
+            const options = {
+                title: 'Dummy Data (Outside Conditional)',
+                pieHole: 0.4,
+                colors: ['#3366cc', '#dc3912', '#ff9900']
+            };
+
+            const chart = new google.visualization.PieChart(chartDiv);
+            chart.draw(data, options);
+            console.log("Google Chart 2 drawn");
+        }
+    } catch (error) {
+        console.error("Error in Google Chart 2 initialization:", error);
+    }
+</script>
 </body>
 </html>
