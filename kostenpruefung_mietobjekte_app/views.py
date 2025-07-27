@@ -190,14 +190,12 @@ def auswertung(request):
     selected_id = request.GET.get('mietobjekt')
     selected_objekt = Mietobjekt.objects.filter(id=selected_id).first() if selected_id else None
 
-    einnahmen = []
-    ausgaben = []
     einnahmen_sum = 0
     ausgaben_sum = 0
     chart_data = {}
 
     if selected_objekt:
-        # Filter Konto through Mieter and Mietobjekt
+        # Calculate Einnahmen (from Konto, if applicable)
         kontos = Konto.objects.filter(mieter__mietobjekte=selected_objekt)
         for konto in kontos:
             betrag = getattr(konto, 'betrag', 0)
@@ -206,10 +204,11 @@ def auswertung(request):
                 einnahmen_sum += betrag
                 cat_name = kategorie.name if kategorie else "Sonstige"
                 chart_data[cat_name] = chart_data.get(cat_name, 0) + betrag
-            else:
-                ausgaben_sum += abs(betrag)
-        einnahmen = einnahmen_sum
-        ausgaben = ausgaben_sum
+
+        # Calculate Ausgaben (from Rechnung)
+        rechnungen = Rechnung.objects.filter(mietobjekt=selected_objekt)
+        for rechnung in rechnungen:
+            ausgaben_sum += rechnung.betrag
 
     ergebnis = einnahmen_sum - ausgaben_sum
 
@@ -220,8 +219,8 @@ def auswertung(request):
     return render(request, 'kostenpruefung_mietobjekte_app/auswertung.html', {
         'mietobjekte': mietobjekte,
         'selected_objekt': selected_objekt,
-        'einnahmen': einnahmen,
-        'ausgaben': ausgaben,
+        'einnahmen': einnahmen_sum,
+        'ausgaben': ausgaben_sum,
         'ergebnis': ergebnis,
         'chart_labels': chart_labels,
         'chart_values': chart_values,
