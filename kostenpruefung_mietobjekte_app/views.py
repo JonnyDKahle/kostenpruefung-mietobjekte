@@ -221,6 +221,16 @@ def auswertung(request):
         chart_labels = [item['art__name'] for item in ausgaben_by_art]
         chart_values = [float(item['total']) for item in ausgaben_by_art]  # Convert Decimal to float
 
+        # Group Einnahmen by art/buchungsart
+        einnahmen_by_art = (
+            Konto.objects.filter(mietobjekt=selected_objekt, betrag__gt=0)
+            .values('buchungsart__name')  # Group by buchungsart name
+            .annotate(total=Sum('betrag'))  # Sum up betrag for each buchungsart
+        )
+
+        # Prepare data for the Einnahmen pie chart
+        einnahmen_labels = [item['buchungsart__name'] for item in einnahmen_by_art]
+        einnahmen_values = [float(item['total']) for item in einnahmen_by_art]  # Convert Decimal to float
     ergebnis = einnahmen_sum - ausgaben_sum
 
     return render(request, 'kostenpruefung_mietobjekte_app/auswertung.html', {
@@ -231,4 +241,6 @@ def auswertung(request):
         'ergebnis': ergebnis,
         'chart_labels': chart_labels if selected_objekt else [],
         'chart_values': chart_values if selected_objekt else [],
+        'einnahmen_labels': einnahmen_labels if selected_objekt else [],
+        'einnahmen_values': einnahmen_values if selected_objekt else [],
     })
