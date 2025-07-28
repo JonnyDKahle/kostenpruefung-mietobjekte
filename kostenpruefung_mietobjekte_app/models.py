@@ -95,7 +95,10 @@ class Prozent(models.Model):
     mieteinheit = models.ForeignKey('Mieteinheit', on_delete=models.CASCADE, related_name="prozent_mieteinheit")
     rechnung = models.ForeignKey('Rechnung', on_delete=models.CASCADE, related_name="prozent_rechnung")
     prozent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # Value between 0 and 100
-    
+
+    def __str__(self):
+        return f"{self.mieteinheit} - {self.rechnung}: {self.prozent}%"
+
 class Rechnungsart(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungsarten_created", null=True, blank=True)
     name = models.CharField(max_length=255)
@@ -135,3 +138,7 @@ class Konto(models.Model):
 
 class Buchungsart(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buchungsart_created", null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=False)
+
+    def __str__(self):
+        return self.name
