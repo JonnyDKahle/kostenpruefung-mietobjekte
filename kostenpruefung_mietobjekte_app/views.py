@@ -270,16 +270,39 @@ def mietverhaeltnis_create(request, mieter_id):
     if not mieter:
         return HttpResponse("Nicht erlaubt", status=403)
     
+    initial_data = {}
+    selected_mietobjekt = None
+    
+    # Check if we're updating the form with address from selected Mietobjekt
+    if request.method == 'GET' and 'primary_mietobjekt' in request.GET:
+        mietobjekt_id = request.GET.get('primary_mietobjekt')
+        if mietobjekt_id:
+            selected_mietobjekt = Mietobjekt.objects.filter(
+                id=mietobjekt_id, created_by=request.user
+            ).first()
+            if selected_mietobjekt:
+                # Pre-populate address fields
+                initial_data = {
+                    'strasse_hausnummer': selected_mietobjekt.strasse_hausnummer,
+                    'plz': selected_mietobjekt.plz,
+                    'ort': selected_mietobjekt.ort,
+                    'land': selected_mietobjekt.land,
+                    'primary_mietobjekt': selected_mietobjekt.id,
+                    # Pre-select this in the mietobjekte field too
+                    'mietobjekte': [selected_mietobjekt.id]
+                }
+    
     if request.method == 'POST':
-        form = MietverhaeltnisForm(request.POST)
+        # Handle final form submission
+        form = MietverhaeltnisForm(request.POST, user=request.user)
         if form.is_valid():
             mietverhaeltnis = form.save(commit=False)
             mietverhaeltnis.mieter = mieter
             mietverhaeltnis.created_by = request.user
             mietverhaeltnis.save()
-            form.save_m2m()  # Save many-to-many relationships
+            form.save_m2m()
             
-            # Determine which page to return to based on contract status
+            # Redirect based on contract status
             today = timezone.now().date()
             if mietverhaeltnis.vertragsbeginn > today:
                 return redirect('mieter_zukuenftig')
@@ -288,9 +311,11 @@ def mietverhaeltnis_create(request, mieter_id):
             else:
                 return redirect('mieter_laufend')
     else:
-        form = MietverhaeltnisForm()
+        # Initial form display or after selecting Mietobjekt
+        form = MietverhaeltnisForm(initial=initial_data, user=request.user)
     
     return render(request, 'kostenpruefung_mietobjekte_app/mietverhaeltnis_form.html', {
         'form': form,
-        'mieter': mieter
+        'mieter': mieter,
+        'selected_mietobjekt': selected_mietobjekt
     })

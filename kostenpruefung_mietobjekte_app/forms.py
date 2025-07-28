@@ -71,17 +71,26 @@ class KontoForm(forms.ModelForm):
         }
 
 class MietverhaeltnisForm(forms.ModelForm):
+    # Add a single-select field for selecting one Mietobjekt to get the address
+    primary_mietobjekt = forms.ModelChoiceField(
+        queryset=Mietobjekt.objects.all(),
+        label="Primäres Mietobjekt für Adressdaten",
+        required=False
+    )
+    
     class Meta:
         model = Mietverhaeltnis
-        fields = ['strasse_hausnummer', 'plz', 'ort', 'land', 
-                  'vertragsbeginn', 'vertragsende', 'kaltmiete', 
-                  'nebenkosten', 'kaution', 'mietobjekte', 'mieteinheiten']
+        fields = ['primary_mietobjekt', 'mietobjekte', 'mieteinheiten', 'vertragsbeginn', 
+                  'vertragsende', 'kaltmiete', 'nebenkosten', 'kaution',
+                  'strasse_hausnummer', 'plz', 'ort', 'land']
         widgets = {
             'vertragsbeginn': forms.DateInput(attrs={'type': 'date'}),
             'vertragsende': forms.DateInput(attrs={'type': 'date'}),
         }
-
-    def __init__(self, *args, **kwargs):
+    
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        # If you want to filter mieteinheiten based on selected mietobjekte,
-        # you could add custom JS or modify the form's clean method
+        if user:
+            self.fields['primary_mietobjekt'].queryset = Mietobjekt.objects.filter(created_by=user)
+            self.fields['mietobjekte'].queryset = Mietobjekt.objects.filter(created_by=user)
+            self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt__created_by=user)

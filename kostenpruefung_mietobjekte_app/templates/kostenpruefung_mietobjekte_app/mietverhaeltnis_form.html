@@ -5,24 +5,123 @@
     <meta charset="UTF-8">
     <title>Mietverhältnis anlegen</title>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+    <style>
+        .field-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #4e79a7;
+            background-color: #f9f9f9;
+        }
+        .address-update-form {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .form-row {
+            margin-bottom: 10px;
+        }
+        .help-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 2px;
+        }
+    </style>
 </head>
 <body>
 <div class="flex-container">
     <nav class="sidebar">
-        <!-- Navigation sidebar as in other templates -->
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
         <h2>Mietverhältnis für {{ mieter.vorname }} {{ mieter.nachname }} anlegen</h2>
+        
+        <!-- Address Update Form -->
+        <div class="address-update-form">
+            <h3>Adressdaten übernehmen</h3>
+            <p>Wählen Sie ein Mietobjekt aus, um die Adressdaten automatisch zu übernehmen:</p>
+            
+            <form method="get" action="">
+                <div class="form-row">
+                    <label for="id_primary_mietobjekt">Mietobjekt:</label>
+                    {{ form.primary_mietobjekt }}
+                </div>
+                <button type="submit" class="action-btn">Adressdaten übernehmen</button>
+            </form>
+            
+            {% if selected_mietobjekt %}
+            <p class="help-text">
+                Die Adressdaten von "{{ selected_mietobjekt.name }}" wurden übernommen.
+            </p>
+            {% endif %}
+        </div>
+        
+        <!-- Main Form -->
         <form method="post">
             {% csrf_token %}
-            <table class="form-table">
-                {{ form.as_table }}
-                <tr>
-                    <td colspan="2">
-                        <button type="submit" class="action-btn">Speichern</button>
-                    </td>
-                </tr>
-            </table>
+            
+            <div class="field-group">
+                <h3>1. Objekt und Mieteinheiten</h3>
+                <div class="form-row">
+                    <label for="{{ form.mietobjekte.id_for_label }}">Mietobjekt(e):</label>
+                    {{ form.mietobjekte }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.mieteinheiten.id_for_label }}">Mieteinheiten:</label>
+                    {{ form.mieteinheiten }}
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <h3>2. Adresse</h3>
+                <div class="form-row">
+                    <label for="{{ form.strasse_hausnummer.id_for_label }}">Straße/Hausnummer:</label>
+                    {{ form.strasse_hausnummer }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.plz.id_for_label }}">PLZ:</label>
+                    {{ form.plz }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.ort.id_for_label }}">Ort:</label>
+                    {{ form.ort }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.land.id_for_label }}">Land:</label>
+                    {{ form.land }}
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <h3>3. Vertragsdaten</h3>
+                <div class="form-row">
+                    <label for="{{ form.vertragsbeginn.id_for_label }}">Vertragsbeginn:</label>
+                    {{ form.vertragsbeginn }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.vertragsende.id_for_label }}">Vertragsende:</label>
+                    {{ form.vertragsende }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.kaltmiete.id_for_label }}">Kaltmiete:</label>
+                    {{ form.kaltmiete }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.nebenkosten.id_for_label }}">Nebenkosten:</label>
+                    {{ form.nebenkosten }}
+                </div>
+                <div class="form-row">
+                    <label for="{{ form.kaution.id_for_label }}">Kaution:</label>
+                    {{ form.kaution }}
+                </div>
+            </div>
+            
+            <input type="hidden" name="primary_mietobjekt" value="{{ form.primary_mietobjekt.value|default:'' }}">
+            <button type="submit" class="action-btn">Speichern</button>
         </form>
     </div>
 </div>
