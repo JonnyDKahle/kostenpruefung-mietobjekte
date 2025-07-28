@@ -5,6 +5,18 @@
     <meta charset="UTF-8">
     <title>{{ heading }}</title>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+    <style>
+        .mieter-row { 
+            background-color: #f5f5f5; 
+            font-weight: bold; 
+            border-top: 2px solid #999; 
+        }
+        .mietverhaeltnis-row { background-color: white; }
+        .mietverhaeltnis-row:hover { background-color: #f9f9f9; }
+        .mietverhaeltnis-row td { padding-left: 20px; }
+        .mietverhaeltnis-empty-row { background-color: #ffeeee; }
+        .lease-label { font-style: italic; color: #666; }
+    </style>
 </head>
 <body>
 <div class="flex-container">
@@ -17,7 +29,6 @@
             <li><a href="{% url 'mieter_archiv' %}">Archiv</a></li>
         </ul>
         <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
-        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
         <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
         <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
     </nav>
@@ -26,17 +37,27 @@
         <form action="{% url 'mieter_create_step1' %}" method="get" style="margin-bottom: 16px;">
             <button class="action-btn" type="submit">Anlegen</button>
         </form>
+        
+        <!-- Header row explaining the hierarchical display -->
+        <div class="info-box" style="margin-bottom: 15px; padding: 10px; background-color: #f0f0f0; border-left: 4px solid #4e79a7;">
+            <p>Diese Ansicht zeigt Mieter mit ihren zugehörigen Mietverhältnissen.</p>
+        </div>
+        
         <table class="object-table">
+            <tr>
+                <th colspan="5">Mieter-Information</th>
+                <th colspan="12">Mietverhältnis-Information</th>
+            </tr>
             <tr>
                 <th>Vorname</th>
                 <th>Nachname</th>
-                <th>Straße/Hausnummer</th>
-                <th>PLZ</th>
-                <th>Ort</th>
-                <th>Land</th>
                 <th>Telefon</th>
                 <th>E-Mail</th>
                 <th>Geburtsdatum</th>
+                <th>Straße/Hausnr.</th>
+                <th>PLZ</th>
+                <th>Ort</th>
+                <th>Land</th>
                 <th>Vertragsbeginn</th>
                 <th>Vertragsende</th>
                 <th>Kaltmiete</th>
@@ -44,40 +65,61 @@
                 <th>Kaution</th>
                 <th>Mietobjekte</th>
                 <th>Mieteinheiten</th>
-                <th>Mietstatus</th>
+                <th>Status</th>
             </tr>
+            
             {% for m in mieter %}
-            <tr>
+            <!-- Tenant row -->
+            <tr class="mieter-row">
                 <td>{{ m.vorname }}</td>
                 <td>{{ m.nachname }}</td>
-                <td>{{ m.strasse_hausnummer }}</td>
-                <td>{{ m.plz }}</td>
-                <td>{{ m.ort }}</td>
-                <td>{{ m.land }}</td>
                 <td>{{ m.telefon }}</td>
                 <td>{{ m.e_mail }}</td>
                 <td>{{ m.geburtsdatum }}</td>
-                <td>{{ m.vertragsbeginn }}</td>
-                <td>{{ m.vertragsende }}</td>
-                <td>{{ m.kaltmiete }}</td>
-                <td>{{ m.nebenkosten }}</td>
-                <td>{{ m.kaution }}</td>
+                <td colspan="12" style="text-align: center;">
+                    <form action="{% url 'mietverhaeltnis_create' m.id %}" method="get">
+                        <button class="action-btn" type="submit">Neues Mietverhältnis anlegen</button>
+                    </form>
+                </td>
+            </tr>
+            
+            <!-- Lease contracts for this tenant -->
+            {% for mv in m.mietverhaeltnisse.all %}
+            <tr class="mietverhaeltnis-row">
+                <td colspan="5" style="text-align: right;">
+                    <span class="lease-label">Mietverhältnis {{ forloop.counter }}:</span>
+                </td>
+                <td>{{ mv.strasse_hausnummer }}</td>
+                <td>{{ mv.plz }}</td>
+                <td>{{ mv.ort }}</td>
+                <td>{{ mv.land }}</td>
+                <td>{{ mv.vertragsbeginn }}</td>
+                <td>{{ mv.vertragsende }}</td>
+                <td>{{ mv.kaltmiete }}</td>
+                <td>{{ mv.nebenkosten }}</td>
+                <td>{{ mv.kaution }}</td>
                 <td>
-                    {% for obj in m.mietobjekte.all %}
+                    {% for obj in mv.mietobjekte.all %}
                         {{ obj.name }}{% if not forloop.last %}, {% endif %}
                     {% empty %}
                         -
                     {% endfor %}
                 </td>
                 <td>
-                    {% for einheit in m.mieteinheiten.all %}
+                    {% for einheit in mv.mieteinheiten.all %}
                         {{ einheit.name }}{% if not forloop.last %}, {% endif %}
                     {% empty %}
                         -
                     {% endfor %}
                 </td>
-                <td>{{ m.mietstatus }}</td>
+                <td>{{ mv.mietstatus }}</td>
             </tr>
+            {% empty %}
+            <tr class="mietverhaeltnis-empty-row">
+                <td colspan="17" style="text-align: center; font-style: italic;">Keine Mietverhältnisse vorhanden</td>
+            </tr>
+            {% endfor %}
+            
             {% empty %}
             <tr>
                 <td colspan="17">Keine Mieter vorhanden.</td>

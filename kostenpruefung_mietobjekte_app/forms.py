@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mieter
+from .models import Mietobjekt, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mieter, Mietverhaeltnis
 
 class MietobjektForm(forms.ModelForm):
     kaufdatum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -21,24 +21,10 @@ class MieteinheitForm(forms.ModelForm):
 class MieterObjektForm(forms.ModelForm):
     class Meta:
         model = Mieter
-        exclude = ['mieteinheiten']
+        fields = ['vorname', 'nachname', 'telefon', 'e_mail', 'geburtsdatum']
         widgets = {
-            'mietobjekte': forms.SelectMultiple,
             'geburtsdatum': forms.DateInput(attrs={'type': 'date'}),
-            'vertragsbeginn': forms.DateInput(attrs={'type': 'date'}),
-            'vertragsende': forms.DateInput(attrs={'type': 'date'}),
         }
-
-class MieterEinheitForm(forms.ModelForm):
-    class Meta:
-        model = Mieter
-        fields = ['mieteinheiten'] # For many to many on mieter model
-
-    def __init__(self, *args, **kwargs):
-        mietobjekte = kwargs.pop('mietobjekte', None)
-        super().__init__(*args, **kwargs)
-        if mietobjekte:
-            self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt__in=mietobjekte)
 
 class RechnungForm(forms.ModelForm):
     datum = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -83,3 +69,19 @@ class KontoForm(forms.ModelForm):
             'buchungstag': forms.DateInput(attrs={'type': 'date'}),
             'werterstellung': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class MietverhaeltnisForm(forms.ModelForm):
+    class Meta:
+        model = Mietverhaeltnis
+        fields = ['strasse_hausnummer', 'plz', 'ort', 'land', 
+                  'vertragsbeginn', 'vertragsende', 'kaltmiete', 
+                  'nebenkosten', 'kaution', 'mietobjekte', 'mieteinheiten']
+        widgets = {
+            'vertragsbeginn': forms.DateInput(attrs={'type': 'date'}),
+            'vertragsende': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If you want to filter mieteinheiten based on selected mietobjekte,
+        # you could add custom JS or modify the form's clean method

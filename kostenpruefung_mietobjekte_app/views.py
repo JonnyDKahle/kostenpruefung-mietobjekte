@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.db.models import Prefetch, Sum
 from django.forms import modelformset_factory
+from django.utils import timezone
+
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
-from .forms import MieterObjektForm, MieterEinheitForm
+from .forms import MieterObjektForm, MietverhaeltnisForm  # Remove MieterEinheitForm
 
 # Create your views here.
 
@@ -44,16 +46,35 @@ def mieter(request):
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
 
 def mieter_laufend(request):
-    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "current"]
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {'mieter': mieter})
+    today = timezone.now().date()
+    # Get all tenants who have at least one current contract
+    mieter_with_current = Mieter.objects.filter(
+        created_by=request.user,
+        mietverhaeltnisse__vertragsbeginn__lte=today,
+        mietverhaeltnisse__vertragsende__gte=today
+    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {'mieter': mieter_with_current})
 
 def mieter_zukuenftig(request):
-    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "future"]
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {'mieter': mieter})
+    today = timezone.now().date()
+    # Get all tenants who have at least one future contract
+    mieter_with_future = Mieter.objects.filter(
+        created_by=request.user,
+        mietverhaeltnisse__vertragsbeginn__gt=today
+    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {'mieter': mieter_with_future})
 
 def mieter_archiv(request):
-    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "past"]
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {'mieter': mieter})
+    today = timezone.now().date()
+    # Get all tenants who have at least one past contract
+    mieter_with_past = Mieter.objects.filter(
+        created_by=request.user,
+        mietverhaeltnisse__vertragsende__lt=today
+    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {'mieter': mieter_with_past})
 
 def mieter_create_step1(request):
     if request.method == 'POST':
@@ -62,31 +83,12 @@ def mieter_create_step1(request):
             mieter = form.save(commit=False)
             mieter.created_by = request.user
             mieter.save()
-            form.save_m2m()
-            # Pass selected Mietobjekte IDs to next step
-            mietobjekte_ids = [obj.id for obj in form.cleaned_data['mietobjekte']]
-            request.session['mieter_id'] = mieter.id
-            request.session['mietobjekte_ids'] = mietobjekte_ids
-            return redirect('mieter_create_step2')
+            
+            # Now redirect directly to create a Mietverhaeltnis for this Mieter
+            return redirect('mietverhaeltnis_create', mieter_id=mieter.id)
     else:
         form = MieterObjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_objekt_form.html', {'form': form})
-
-def mieter_create_step2(request):
-    mieter_id = request.session.get('mieter_id')
-    mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
-    if not mieter:
-        return HttpResponse("Nicht erlaubt", status=403)
-    mietobjekte_ids = request.session.get('mietobjekte_ids', [])
-    mietobjekte = Mietobjekt.objects.filter(id__in=mietobjekte_ids, created_by=request.user)
-    if request.method == 'POST':
-        form = MieterEinheitForm(request.POST, mietobjekte=mietobjekte)
-        if form.is_valid():
-            mieter.mieteinheiten.set(form.cleaned_data['mieteinheiten'])
-            return redirect('mieter')
-    else:
-        form = MieterEinheitForm(mietobjekte=mietobjekte)
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_einheit_form.html', {'form': form, 'mieter': mieter})
 
 def rechnungen(request):
     rechnungen = Rechnung.objects.filter(created_by=request.user).prefetch_related(
@@ -261,4 +263,34 @@ def auswertung(request):
         'chart_values': chart_values if selected_objekt else [],
         'einnahmen_labels': einnahmen_labels if selected_objekt else [],
         'einnahmen_values': einnahmen_values if selected_objekt else [],
+    })
+
+def mietverhaeltnis_create(request, mieter_id):
+    mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
+    if not mieter:
+        return HttpResponse("Nicht erlaubt", status=403)
+    
+    if request.method == 'POST':
+        form = MietverhaeltnisForm(request.POST)
+        if form.is_valid():
+            mietverhaeltnis = form.save(commit=False)
+            mietverhaeltnis.mieter = mieter
+            mietverhaeltnis.created_by = request.user
+            mietverhaeltnis.save()
+            form.save_m2m()  # Save many-to-many relationships
+            
+            # Determine which page to return to based on contract status
+            today = timezone.now().date()
+            if mietverhaeltnis.vertragsbeginn > today:
+                return redirect('mieter_zukuenftig')
+            elif mietverhaeltnis.vertragsende < today:
+                return redirect('mieter_archiv')
+            else:
+                return redirect('mieter_laufend')
+    else:
+        form = MietverhaeltnisForm()
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mietverhaeltnis_form.html', {
+        'form': form,
+        'mieter': mieter
     })

@@ -39,24 +39,28 @@ class Mieter(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mieter_created", null=True, blank=True)
     vorname = models.CharField(max_length=255)
     nachname = models.CharField(max_length=255)
-    strasse_hausnummer = models.CharField(max_length=255)
-    plz = models.CharField(max_length=10) # 2 - 10 characters (numbers and letters)
-    ort = models.CharField(max_length=100)
-    land = models.CharField(max_length=100)
     telefon = models.CharField(max_length=100)
     e_mail = models.EmailField()
     geburtsdatum = models.DateField()
 
+    def __str__(self):
+        return f"{self.vorname} {self.nachname}"
+    
+class Mietverhaeltnis(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mietverhaeltnis_created", null=True, blank=True)
+    mieter = models.ForeignKey(Mieter, on_delete=models.CASCADE, related_name="mietverhaeltnisse")
+    strasse_hausnummer = models.CharField(max_length=255)
+    plz = models.CharField(max_length=10)
+    ort = models.CharField(max_length=100)
+    land = models.CharField(max_length=100)
     vertragsbeginn = models.DateField()
     vertragsende = models.DateField()
-
     kaltmiete = models.DecimalField(max_digits=10, decimal_places=2)
     nebenkosten = models.DecimalField(max_digits=10, decimal_places=2)
     kaution = models.DecimalField(max_digits=10, decimal_places=2)
-
     mietobjekte = models.ManyToManyField('Mietobjekt')
     mieteinheiten = models.ManyToManyField('Mieteinheit')
-
+    
     @property
     def mietstatus(self):
         today = datetime.date.today()
@@ -66,10 +70,9 @@ class Mieter(models.Model):
             return "past"
         else:
             return "current"
-        
-    def __str__(self):
-        return f"{self.vorname} {self.nachname}"
     
+    def __str__(self):
+        return f"Mietverhältnis: {self.mieter.vorname} {self.mieter.nachname} ({self.vertragsbeginn} bis {self.vertragsende})"
 
 class Rechnung(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungen_created", null=True, blank=True)
