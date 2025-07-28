@@ -19,142 +19,143 @@
     </style>
 </head>
 <body>
-<div class="main-content">
-    <h2>Auswertung</h2>
-    <form method="get">
-        <label for="mietobjekt">Mietobjekt wählen:</label>
-        <select name="mietobjekt" id="mietobjekt" onchange="this.form.submit()">
-            <option value="">-- Bitte wählen --</option>
-            {% for obj in mietobjekte %}
-                <option value="{{ obj.id }}" {% if selected_objekt and obj.id == selected_objekt.id %}selected{% endif %}>{{ obj.name }}</option>
-            {% endfor %}
-        </select>
-    </form>
-    
-    <!-- Debug information section -->
-    <!-- <div style="background-color: #f5f5f5; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
-        <h3>Debug Information:</h3>
-        <p>Chart Labels: {{ chart_labels }}</p>
-        <p>Chart Values: {{ chart_values }}</p>
-        <p>Selected Object: {{ selected_objekt.name|default:"None" }}</p>
-    </div> -->
-    
-    {% if selected_objekt %}
-    <div class="auswertung-flex">
-        <div class="auswertung-left">
-            <h3>{{ selected_objekt.name }}</h3>
-            <p><strong>Einnahmen:</strong> {{ einnahmen|floatformat:2 }} €</p>
-            <p><strong>Ausgaben:</strong> {{ ausgaben|floatformat:2 }} €</p>
-            <p><strong>Ergebnis:</strong> {{ ergebnis|floatformat:2 }} €</p>
-        </div>
-        <div class="auswertung-right">
-            <p><strong>Einnahmen Pie Chart:</strong></p>
-            <div id="einnahmenGoogleChart" style="width: 400px; height: 400px;"></div>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>Auswertung</h2>
+        <form method="get">
+            <label for="mietobjekt">Mietobjekt wählen:</label>
+            <select name="mietobjekt" id="mietobjekt" onchange="this.form.submit()">
+                <option value="">-- Bitte wählen --</option>
+                {% for obj in mietobjekte %}
+                    <option value="{{ obj.id }}" {% if selected_objekt and obj.id == selected_objekt.id %}selected{% endif %}>{{ obj.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        
+        {% if selected_objekt %}
+        <div class="auswertung-flex">
+            <div class="auswertung-left">
+                <h3>{{ selected_objekt.name }}</h3>
+                <p><strong>Einnahmen:</strong> {{ einnahmen|floatformat:2 }} €</p>
+                <p><strong>Ausgaben:</strong> {{ ausgaben|floatformat:2 }} €</p>
+                <p><strong>Ergebnis:</strong> {{ ergebnis|floatformat:2 }} €</p>
+            </div>
+            <div class="auswertung-right">
+                <p><strong>Einnahmen Pie Chart:</strong></p>
+                <div id="einnahmenGoogleChart" style="width: 400px; height: 400px;"></div>
 
-            <p><strong>Ausgaben Pie Chart:</strong></p>
-            <div id="ausgabenGoogleChart" style="width: 400px; height: 400px;"></div>
+                <p><strong>Ausgaben Pie Chart:</strong></p>
+                <div id="ausgabenGoogleChart" style="width: 400px; height: 400px;"></div>
+            </div>
         </div>
+        
+        {{ einnahmen_labels|json_script:"einnahmenLabelsData" }}
+        {{ einnahmen_values|json_script:"einnahmenValuesData" }}
+        {{ chart_labels|json_script:"chartLabelsData" }}
+        {{ chart_values|json_script:"chartValuesData" }}
+        
+        <script>
+            console.log("Script inside conditional block started");
+
+            // Google Chart for Einnahmen
+            try {
+                console.log("Setting up Google Chart for Einnahmen");
+
+                const einnahmenLabels = JSON.parse(document.getElementById('einnahmenLabelsData').textContent || '[]');
+                const einnahmenValues = JSON.parse(document.getElementById('einnahmenValuesData').textContent || '[]');
+
+                console.log("Einnahmen Labels:", einnahmenLabels);
+                console.log("Einnahmen Values:", einnahmenValues);
+
+                if (einnahmenLabels.length === 0 || einnahmenValues.length === 0) {
+                    console.warn("No data available for the Einnahmen chart.");
+                } else {
+                    google.charts.load('current', { packages: ['corechart'] });
+                    google.charts.setOnLoadCallback(drawEinnahmenChart);
+
+                    function drawEinnahmenChart() {
+                        console.log("Drawing Einnahmen Chart");
+                        const chartDiv = document.getElementById('einnahmenGoogleChart');
+                        console.log("Einnahmen chart div:", chartDiv);
+
+                        const data = new google.visualization.DataTable();
+                        data.addColumn('string', 'Buchungsart');
+                        data.addColumn('number', 'Betrag');
+
+                        for (let i = 0; i < einnahmenLabels.length; i++) {
+                            data.addRow([einnahmenLabels[i], parseFloat(einnahmenValues[i])]);
+                        }
+
+                        const options = {
+                            title: 'Einnahmen nach Buchungsart',
+                            pieHole: 0.4,
+                            colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
+                            legend: { position: 'bottom' }
+                        };
+
+                        const chart = new google.visualization.PieChart(chartDiv);
+                        chart.draw(data, options);
+                        console.log("Einnahmen chart drawn");
+                    }
+                }
+            } catch (error) {
+                console.error("Error in Einnahmen chart initialization:", error);
+            }
+
+            // Google Chart for Ausgaben
+            try {
+                console.log("Setting up Google Chart for Ausgaben");
+
+                const chartLabels = JSON.parse(document.getElementById('chartLabelsData').textContent || '[]');
+                const chartValues = JSON.parse(document.getElementById('chartValuesData').textContent || '[]');
+
+                console.log("Chart Labels:", chartLabels);
+                console.log("Chart Values:", chartValues);
+
+                if (chartLabels.length === 0 || chartValues.length === 0) {
+                    console.warn("No data available for the Ausgaben chart.");
+                } else {
+                    google.charts.load('current', { packages: ['corechart'] });
+                    google.charts.setOnLoadCallback(drawAusgabenChart);
+
+                    function drawAusgabenChart() {
+                        console.log("Drawing Ausgaben Chart");
+                        const chartDiv = document.getElementById('ausgabenGoogleChart');
+                        console.log("Ausgaben chart div:", chartDiv);
+
+                        const data = new google.visualization.DataTable();
+                        data.addColumn('string', 'Buchungsart');
+                        data.addColumn('number', 'Betrag');
+
+                        for (let i = 0; i < chartLabels.length; i++) {
+                            data.addRow([chartLabels[i], parseFloat(chartValues[i])]);
+                        }
+
+                        const options = {
+                            title: 'Ausgaben nach Buchungsart',
+                            pieHole: 0.4,
+                            colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
+                            legend: { position: 'bottom' }
+                        };
+
+                        const chart = new google.visualization.PieChart(chartDiv);
+                        chart.draw(data, options);
+                        console.log("Ausgaben chart drawn");
+                    }
+                }
+            } catch (error) {
+                console.error("Error in Ausgaben chart initialization:", error);
+            }
+        </script>
+        {% endif %}
     </div>
-    
-    {{ einnahmen_labels|json_script:"einnahmenLabelsData" }}
-    {{ einnahmen_values|json_script:"einnahmenValuesData" }}
-    {{ chart_labels|json_script:"chartLabelsData" }}
-    {{ chart_values|json_script:"chartValuesData" }}
-    
-    <script>
-        console.log("Script inside conditional block started");
-
-        // Google Chart for Einnahmen
-        try {
-            console.log("Setting up Google Chart for Einnahmen");
-
-            const einnahmenLabels = JSON.parse(document.getElementById('einnahmenLabelsData').textContent || '[]');
-            const einnahmenValues = JSON.parse(document.getElementById('einnahmenValuesData').textContent || '[]');
-
-            console.log("Einnahmen Labels:", einnahmenLabels);
-            console.log("Einnahmen Values:", einnahmenValues);
-
-            if (einnahmenLabels.length === 0 || einnahmenValues.length === 0) {
-                console.warn("No data available for the Einnahmen chart.");
-            } else {
-                google.charts.load('current', { packages: ['corechart'] });
-                google.charts.setOnLoadCallback(drawEinnahmenChart);
-
-                function drawEinnahmenChart() {
-                    console.log("Drawing Einnahmen Chart");
-                    const chartDiv = document.getElementById('einnahmenGoogleChart');
-                    console.log("Einnahmen chart div:", chartDiv);
-
-                    const data = new google.visualization.DataTable();
-                    data.addColumn('string', 'Buchungsart');
-                    data.addColumn('number', 'Betrag');
-
-                    for (let i = 0; i < einnahmenLabels.length; i++) {
-                        data.addRow([einnahmenLabels[i], parseFloat(einnahmenValues[i])]);
-                    }
-
-                    const options = {
-                        title: 'Einnahmen nach Buchungsart',
-                        pieHole: 0.4,
-                        colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
-                        legend: { position: 'bottom' }
-                    };
-
-                    const chart = new google.visualization.PieChart(chartDiv);
-                    chart.draw(data, options);
-                    console.log("Einnahmen chart drawn");
-                }
-            }
-        } catch (error) {
-            console.error("Error in Einnahmen chart initialization:", error);
-        }
-
-        // Google Chart for Ausgaben
-        try {
-            console.log("Setting up Google Chart for Ausgaben");
-
-            const chartLabels = JSON.parse(document.getElementById('chartLabelsData').textContent || '[]');
-            const chartValues = JSON.parse(document.getElementById('chartValuesData').textContent || '[]');
-
-            console.log("Chart Labels:", chartLabels);
-            console.log("Chart Values:", chartValues);
-
-            if (chartLabels.length === 0 || chartValues.length === 0) {
-                console.warn("No data available for the Ausgaben chart.");
-            } else {
-                google.charts.load('current', { packages: ['corechart'] });
-                google.charts.setOnLoadCallback(drawAusgabenChart);
-
-                function drawAusgabenChart() {
-                    console.log("Drawing Ausgaben Chart");
-                    const chartDiv = document.getElementById('ausgabenGoogleChart');
-                    console.log("Ausgaben chart div:", chartDiv);
-
-                    const data = new google.visualization.DataTable();
-                    data.addColumn('string', 'Buchungsart');
-                    data.addColumn('number', 'Betrag');
-
-                    for (let i = 0; i < chartLabels.length; i++) {
-                        data.addRow([chartLabels[i], parseFloat(chartValues[i])]);
-                    }
-
-                    const options = {
-                        title: 'Ausgaben nach Buchungsart',
-                        pieHole: 0.4,
-                        colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
-                        legend: { position: 'bottom' }
-                    };
-
-                    const chart = new google.visualization.PieChart(chartDiv);
-                    chart.draw(data, options);
-                    console.log("Ausgaben chart drawn");
-                }
-            }
-        } catch (error) {
-            console.error("Error in Ausgaben chart initialization:", error);
-        }
-    </script>
-    {% endif %}
 </div>
 </body>
 </html>
