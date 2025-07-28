@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ heading }}</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
+            <li><a href="{% url 'mieter_laufend' %}">Laufend</a></li>
+            <li><a href="{% url 'mieter_zukuenftig' %}">Zukuenftig</a></li>
+            <li><a href="{% url 'mieter_archiv' %}">Archiv</a></li>
+        </ul>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="#">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>{{ heading }}</h2>
+        <form action="{% url 'mieter_create_step1' %}" method="get" style="margin-bottom: 16px;">
+            <button class="action-btn" type="submit">Anlegen</button>
+        </form>
+        <table class="object-table">
+            <tr>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Straße/Hausnummer</th>
+                <th>PLZ</th>
+                <th>Ort</th>
+                <th>Land</th>
+                <th>Telefon</th>
+                <th>E-Mail</th>
+                <th>Geburtsdatum</th>
+                <th>Vertragsbeginn</th>
+                <th>Vertragsende</th>
+                <th>Kaltmiete</th>
+                <th>Nebenkosten</th>
+                <th>Kaution</th>
+                <th>Mietobjekte</th>
+                <th>Mieteinheiten</th>
+                <th>Mietstatus</th>
+            </tr>
+            {% for m in mieter %}
+            <tr>
+                <td>{{ m.vorname }}</td>
+                <td>{{ m.nachname }}</td>
+                <td>{{ m.strasse_hausnummer }}</td>
+                <td>{{ m.plz }}</td>
+                <td>{{ m.ort }}</td>
+                <td>{{ m.land }}</td>
+                <td>{{ m.telefon }}</td>
+                <td>{{ m.e_mail }}</td>
+                <td>{{ m.geburtsdatum }}</td>
+                <td>{{ m.vertragsbeginn }}</td>
+                <td>{{ m.vertragsende }}</td>
+                <td>{{ m.kaltmiete }}</td>
+                <td>{{ m.nebenkosten }}</td>
+                <td>{{ m.kaution }}</td>
+                <td>
+                    {% for obj in m.mietobjekte.all %}
+                        {{ obj.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for einheit in m.mieteinheiten.all %}
+                        {{ einheit.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+                <td>{{ m.mietstatus }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="17">Keine Mieter vorhanden.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>

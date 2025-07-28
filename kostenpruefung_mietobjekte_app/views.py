@@ -43,6 +43,18 @@ def mieter(request):
     mieter = Mieter.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
 
+def mieter_laufend(request):
+    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "current"]
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {'mieter': mieter})
+
+def mieter_zukuenftig(request):
+    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "future"]
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {'mieter': mieter})
+
+def mieter_archiv(request):
+    mieter = [m for m in Mieter.objects.filter(created_by=request.user) if m.mietstatus == "past"]
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {'mieter': mieter})
+
 def mieter_create_step1(request):
     if request.method == 'POST':
         form = MieterObjektForm(request.POST)

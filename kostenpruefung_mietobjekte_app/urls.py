@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto, auswertung)
+from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto, auswertung, 
+                    mieter_laufend, mieter_zukuenftig, mieter_archiv)
 from .views import mietobjekt_create, rechnung_create, rechnungsart_create, lieferant_create, konto_create
 from .views import mieteinheit_create, prozent_bulk_update, mieter_create_step1, mieter_create_step2
 
@@ -10,6 +11,9 @@ urlpatterns = [
     path('mietobjekt/create/', mietobjekt_create, name='mietobjekt_create'),
     path('mieteinheit/create/<int:mietobjekt_id>/', mieteinheit_create, name='mieteinheit_create'),
     path('mieter/', mieter, name='mieter'),
+    path('mieter/laufend/', mieter_laufend, name='mieter_laufend'),
+    path('mieter/zukuenftig/', mieter_zukuenftig, name='mieter_zukuenftig'),
+    path('mieter/archiv/', mieter_archiv, name='mieter_archiv'),
     path('mieter/create/step1/', mieter_create_step1, name='mieter_create_step1'),
     path('mieter/create/step2/', mieter_create_step2, name='mieter_create_step2'),
     path('rechnungen/', rechnungen, name='rechnungen'),
