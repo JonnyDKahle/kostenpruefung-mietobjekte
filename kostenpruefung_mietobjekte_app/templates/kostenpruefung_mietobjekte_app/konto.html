@@ -29,6 +29,7 @@
                 <th>Buchungsart</th>
                 <th>Mieter</th>
                 <th>Lieferanten</th>
+                <th>Mietobjekte</th>
             </tr>
             {% for k in konten %}
             <tr>
@@ -47,10 +48,15 @@
                         {{ l.firmenname }}{% if not forloop.last %},<br>{% endif %}
                     {% endfor %}
                 </td>
+                <td>
+                    {% for obj in k.mietobjekt.all %}
+                        {{ obj.name }}{% if not forloop.last %},<br>{% endif %}
+                    {% endfor %}
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7">Keine Kontobewegungen vorhanden.</td>
+                <td colspan="8">Keine Kontobewegungen vorhanden.</td>
             </tr>
             {% endfor %}
         </table>
