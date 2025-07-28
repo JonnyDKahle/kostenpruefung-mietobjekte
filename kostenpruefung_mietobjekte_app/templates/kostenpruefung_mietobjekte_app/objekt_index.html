@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <title>Objekte</title>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+    <style>
+        .objekt-row-rot    { background-color: #ffe5e5; }
+        .objekt-row-blau   { background-color: #e5f0ff; }
+        .objekt-row-gruen  { background-color: #e5ffe5; }
+        .objekt-row-gelb   { background-color: #fffbe5; }
+        .objekt-row-schwarz{ background-color: #eeeeee; }
+    </style>
 </head>
 <body>
 <div class="flex-container">
@@ -31,11 +38,10 @@
                 <th>Kaufpreis</th>
                 <th>Darlehen</th>
                 <th>Grundschuld</th>
-                <th>Farbe</th>
-                <th>Mieteinheiten</th> <!-- New column -->
+                <th>Mieteinheiten</th>
             </tr>
             {% for o in objekte %}
-            <tr>
+            <tr class="objekt-row-{{ o.farbe }}">
                 <td>{{ o.name }}</td>
                 <td>{{ o.strasse_hausnummer }}</td>
                 <td>{{ o.plz }}</td>
@@ -45,7 +51,6 @@
                 <td>{{ o.kaufpreis }}</td>
                 <td>{{ o.darlehen }}</td>
                 <td>{{ o.grundschuld }}</td>
-                <td>{{ o.get_farbe_display }}</td>
                 <td>
                     {% for einheit in o.mieteinheiten.all %}
                         {{ einheit.name }}<br>
@@ -59,7 +64,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="11">Keine Objekte vorhanden.</td>
+                <td colspan="10">Keine Objekte vorhanden.</td>
             </tr>
             {% endfor %}
         </table>
