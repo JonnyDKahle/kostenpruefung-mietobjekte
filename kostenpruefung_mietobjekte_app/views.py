@@ -4,7 +4,7 @@ from django.db.models import Prefetch, Sum
 from django.forms import modelformset_factory
 from django.utils import timezone
 
-from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent
+from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mietverhaeltnis
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
 from .forms import MieterObjektForm, MietverhaeltnisForm  # Remove MieterEinheitForm
 
@@ -47,32 +47,60 @@ def mieter(request):
 
 def mieter_laufend(request):
     today = timezone.now().date()
-    # Get all tenants who have at least one current contract
+    
+    # Get tenants with at least one current contract
     mieter_with_current = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsbeginn__lte=today,
         mietverhaeltnisse__vertragsende__gte=today
-    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    ).distinct().prefetch_related(
+        # Only prefetch CURRENT lease contracts
+        Prefetch(
+            'mietverhaeltnisse',
+            queryset=Mietverhaeltnis.objects.filter(
+                vertragsbeginn__lte=today,
+                vertragsende__gte=today
+            ).prefetch_related('mietobjekte', 'mieteinheiten')
+        )
+    )
     
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {'mieter': mieter_with_current})
 
 def mieter_zukuenftig(request):
     today = timezone.now().date()
-    # Get all tenants who have at least one future contract
+    
+    # Get tenants with at least one future contract
     mieter_with_future = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsbeginn__gt=today
-    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    ).distinct().prefetch_related(
+        # Only prefetch FUTURE lease contracts
+        Prefetch(
+            'mietverhaeltnisse',
+            queryset=Mietverhaeltnis.objects.filter(
+                vertragsbeginn__gt=today
+            ).prefetch_related('mietobjekte', 'mieteinheiten')
+        )
+    )
     
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {'mieter': mieter_with_future})
 
 def mieter_archiv(request):
     today = timezone.now().date()
-    # Get all tenants who have at least one past contract
+    
+    # Get tenants with at least one past contract
     mieter_with_past = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsende__lt=today
-    ).distinct().prefetch_related('mietverhaeltnisse__mietobjekte', 'mietverhaeltnisse__mieteinheiten')
+    ).distinct().prefetch_related(
+        # Only prefetch PAST lease contracts
+        Prefetch(
+            'mietverhaeltnisse',
+            queryset=Mietverhaeltnis.objects.filter(
+                vertragsende__lt=today
+            ).prefetch_related('mietobjekte', 'mieteinheiten')
+        )
+    )
     
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {'mieter': mieter_with_past})
 
