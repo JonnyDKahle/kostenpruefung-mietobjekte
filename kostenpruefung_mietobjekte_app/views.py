@@ -3,10 +3,12 @@ from django.http import HttpResponse
 from django.db.models import Prefetch, Sum
 from django.forms import modelformset_factory
 from django.utils import timezone
+from django.views.generic.edit import UpdateView, DeleteView
+from django.urls import reverse_lazy
 
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mietverhaeltnis
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
-from .forms import MieterObjektForm, MietverhaeltnisForm  # Remove MieterEinheitForm
+from .forms import MieterObjektForm, MietverhaeltnisForm
 
 # Create your views here.
 
@@ -347,3 +349,26 @@ def mietverhaeltnis_create(request, mieter_id):
         'mieter': mieter,
         'selected_mietobjekt': selected_mietobjekt
     })
+
+class MietobjektUpdateView(UpdateView):
+    model = Mietobjekt
+    form_class = MietobjektForm
+    template_name = 'kostenpruefung_mietobjekte_app/mietobjekt_form.html'
+
+    def get_queryset(self):
+        # Only allow editing objects created by the user
+        return Mietobjekt.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('objekt_index')
+
+class MietobjektDeleteView(DeleteView):
+    model = Mietobjekt
+    template_name = 'kostenpruefung_mietobjekte_app/mietobjekt_confirm_delete.html'
+
+    def get_queryset(self):
+        # Only allow deleting objects created by the user
+        return Mietobjekt.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('objekt_index')

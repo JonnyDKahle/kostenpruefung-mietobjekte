@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mietobjekt löschen</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>Mietobjekt löschen</h2>
+        <p>Möchten Sie das Mietobjekt "{{ object.name }}" wirklich löschen?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button class="action-btn" type="submit">Ja, löschen</button>
+            <a class="action-btn" href="{% url 'objekt_index' %}">Abbrechen</a>
+        </form>

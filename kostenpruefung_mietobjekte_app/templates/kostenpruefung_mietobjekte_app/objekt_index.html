@@ -11,6 +11,9 @@
         .objekt-row-gruen  { background-color: #e5ffe5; }
         .objekt-row-gelb   { background-color: #fffbe5; }
         .objekt-row-schwarz{ background-color: #eeeeee; }
+        .objekt-actions { white-space: nowrap; }
+        .objekt-actions form { display: inline; }
+        .objekt-actions .action-btn { margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -39,6 +42,7 @@
                 <th>Darlehen</th>
                 <th>Grundschuld</th>
                 <th>Mieteinheiten</th>
+                <th>Aktionen</th>
             </tr>
             {% for o in objekte %}
             <tr class="objekt-row-{{ o.farbe }}">
@@ -61,10 +65,19 @@
                         <button class="action-btn" type="submit">Mieteinheit anlegen</button>
                     </form>
                 </td>
+                <td class="objekt-actions">
+                    <form action="{% url 'mietobjekt_update' o.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'mietobjekt_delete' o.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="action-btn" type="submit" onclick="return confirm('Wirklich löschen?');">Löschen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="10">Keine Objekte vorhanden.</td>
+                <td colspan="11">Keine Objekte vorhanden.</td>
             </tr>
             {% endfor %}
         </table>

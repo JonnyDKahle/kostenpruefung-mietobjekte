@@ -3,12 +3,15 @@ from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, 
                     mieter_laufend, mieter_zukuenftig, mieter_archiv)
 from .views import mietobjekt_create, rechnung_create, rechnungsart_create, lieferant_create, konto_create
 from .views import mieteinheit_create, prozent_bulk_update, mieter_create_step1, mietverhaeltnis_create
+from .views import MietobjektUpdateView, MietobjektDeleteView
 
 
 
 urlpatterns = [
     path('', objekt_index, name='objekt_index'),
     path('mietobjekt/create/', mietobjekt_create, name='mietobjekt_create'),
+    path('mietobjekt/<int:pk>/update/', MietobjektUpdateView.as_view(), name='mietobjekt_update'),
+    path('mietobjekt/<int:pk>/delete/', MietobjektDeleteView.as_view(), name='mietobjekt_delete'),
     path('mieteinheit/create/<int:mietobjekt_id>/', mieteinheit_create, name='mieteinheit_create'),
     path('mieter/', mieter, name='mieter'),
     path('mieter/laufend/', mieter_laufend, name='mieter_laufend'),
