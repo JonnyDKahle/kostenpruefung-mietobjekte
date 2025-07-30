@@ -20,6 +20,21 @@
             margin-bottom: 16px;
             display: flex;
             gap: 10px;
+            align-items: center;
+        }
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-left: 20px;
+        }
+        .dropdown-container select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -44,6 +59,20 @@
             <form action="{% url 'mieter_create_step1' %}" method="get">
                 <button class="action-btn" type="submit">Neuen Mieter anlegen</button>
             </form>
+            
+            <!-- New dropdown for Mieter without Mietverhaeltnis -->
+            {% if mieter_without_mietverhaeltnis %}
+            <div class="dropdown-container">
+                <label for="mieter-select">Mietverhältnis für vorhandenen Mieter anlegen:</label>
+                <select id="mieter-select" name="mieter_id">
+                    <option value="">-- Mieter auswählen --</option>
+                    {% for m in mieter_without_mietverhaeltnis %}
+                        <option value="{{ m.id }}">{{ m.vorname }} {{ m.nachname }}</option>
+                    {% endfor %}
+                </select>
+                <button id="create-mietverhaeltnis-btn" class="action-btn" disabled>Mietverhältnis anlegen</button>
+            </div>
+            {% endif %}
         </div>
         
         <!-- Header row explaining the hierarchical display -->
@@ -147,6 +176,28 @@
             </tr>
             {% endfor %}
         </table>
+        
+        <script>
+            // Enable/disable the button based on selection
+            document.addEventListener('DOMContentLoaded', function() {
+                const select = document.getElementById('mieter-select');
+                const button = document.getElementById('create-mietverhaeltnis-btn');
+                
+                if (select && button) {
+                    select.addEventListener('change', function() {
+                        if (this.value) {
+                            button.disabled = false;
+                            // Update the button's URL when a mieter is selected
+                            button.onclick = function() {
+                                window.location.href = "{% url 'mietverhaeltnis_create' 0 %}".replace('0', select.value);
+                            }
+                        } else {
+                            button.disabled = true;
+                        }
+                    });
+                }
+            });
+        </script>
     </div>
 </div>
 </body>

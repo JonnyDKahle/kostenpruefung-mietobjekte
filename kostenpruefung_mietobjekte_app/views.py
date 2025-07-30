@@ -56,7 +56,6 @@ def mieter_laufend(request):
         mietverhaeltnisse__vertragsbeginn__lte=today,
         mietverhaeltnisse__vertragsende__gte=today
     ).distinct().prefetch_related(
-        # Only prefetch CURRENT lease contracts
         Prefetch(
             'mietverhaeltnisse',
             queryset=Mietverhaeltnis.objects.filter(
@@ -66,7 +65,17 @@ def mieter_laufend(request):
         )
     )
     
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {'mieter': mieter_with_current})
+    # Get mieter without any Mietverhaeltnis
+    mieter_without_mietverhaeltnis = Mieter.objects.filter(
+        created_by=request.user
+    ).exclude(
+        mietverhaeltnisse__isnull=False
+    )
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_laufend.html', {
+        'mieter': mieter_with_current,
+        'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
+    })
 
 def mieter_zukuenftig(request):
     today = timezone.now().date()
@@ -85,7 +94,17 @@ def mieter_zukuenftig(request):
         )
     )
     
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {'mieter': mieter_with_future})
+    # Get mieter without any Mietverhaeltnis
+    mieter_without_mietverhaeltnis = Mieter.objects.filter(
+        created_by=request.user
+    ).exclude(
+        mietverhaeltnisse__isnull=False
+    )
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_zukuenftig.html', {
+        'mieter': mieter_with_future,
+        'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
+    })
 
 def mieter_archiv(request):
     today = timezone.now().date()
@@ -104,7 +123,17 @@ def mieter_archiv(request):
         )
     )
     
-    return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {'mieter': mieter_with_past})
+    # Get mieter without any Mietverhaeltnis
+    mieter_without_mietverhaeltnis = Mieter.objects.filter(
+        created_by=request.user
+    ).exclude(
+        mietverhaeltnisse__isnull=False
+    )
+    
+    return render(request, 'kostenpruefung_mietobjekte_app/mieter_archiv.html', {
+        'mieter': mieter_with_past,
+        'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
+    })
 
 def mieter_create_step1(request):
     if request.method == 'POST':
