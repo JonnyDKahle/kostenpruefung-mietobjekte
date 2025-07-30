@@ -114,8 +114,8 @@ def mieter_create_step1(request):
             mieter.created_by = request.user
             mieter.save()
             
-            # Now redirect directly to create a Mietverhaeltnis for this Mieter
-            return redirect('mietverhaeltnis_create', mieter_id=mieter.id)
+            # Redirect back to the mieter_laufend page instead of mietverhaeltnis_create
+            return redirect('mieter_laufend')
     else:
         form = MieterObjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_objekt_form.html', {'form': form})

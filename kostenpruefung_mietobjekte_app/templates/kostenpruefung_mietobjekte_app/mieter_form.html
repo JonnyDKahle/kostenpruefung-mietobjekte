@@ -3,7 +3,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Mieter anlegen</title>
+    <title>Mieter bearbeiten</title>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
 </head>
 <body>
@@ -16,7 +16,7 @@
         <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
-        <h2>Neuen Mieter anlegen</h2>
+        <h2>Mieter bearbeiten</h2>
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}

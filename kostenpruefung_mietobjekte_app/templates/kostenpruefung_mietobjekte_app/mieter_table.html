@@ -16,6 +16,11 @@
         .mietverhaeltnis-row td { padding-left: 20px; }
         .mietverhaeltnis-empty-row { background-color: #ffeeee; }
         .lease-label { font-style: italic; color: #666; }
+        .button-group {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -34,9 +39,12 @@
     </nav>
     <div class="main-content">
         <h2>{{ heading }}</h2>
-        <form action="{% url 'mieter_create_step1' %}" method="get" style="margin-bottom: 16px;">
-            <button class="action-btn" type="submit">Anlegen</button>
-        </form>
+        
+        <div class="button-group">
+            <form action="{% url 'mieter_create_step1' %}" method="get">
+                <button class="action-btn" type="submit">Neuen Mieter anlegen</button>
+            </form>
+        </div>
         
         <!-- Header row explaining the hierarchical display -->
         <div class="info-box" style="margin-bottom: 15px; padding: 10px; background-color: #f0f0f0; border-left: 4px solid #4e79a7;">
@@ -123,16 +131,19 @@
                     {% endfor %}
                 </td>
                 <td>{{ mv.mietstatus }}</td>
+                <td class="objekt-actions">
+                    <!-- Add actions for Mietverhaeltnis -->
+                </td>
             </tr>
             {% empty %}
             <tr class="mietverhaeltnis-empty-row">
-                <td colspan="17" style="text-align: center; font-style: italic;">Keine Mietverhältnisse vorhanden</td>
+                <td colspan="18" style="text-align: center; font-style: italic;">Keine Mietverhältnisse vorhanden</td>
             </tr>
             {% endfor %}
             
             {% empty %}
             <tr>
-                <td colspan="17">Keine Mieter vorhanden.</td>
+                <td colspan="18">Keine Mieter vorhanden.</td>
             </tr>
             {% endfor %}
         </table>
