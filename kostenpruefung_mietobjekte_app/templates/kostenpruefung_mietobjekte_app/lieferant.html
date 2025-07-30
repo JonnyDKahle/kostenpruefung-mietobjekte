@@ -52,10 +52,10 @@
                 <td>{{ l.e_mail }}</td>
                 <td>{{ l.telefon }}</td>
                 <td class="objekt-actions"> <!-- Actions column data -->
-                    <form action="{% url 'lieferant_update' l.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'lieferant_update' l.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'lieferant_delete' l.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'lieferant_delete' l.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>

@@ -35,10 +35,10 @@
             <tr>
                 <td>{{ k.name }}</td>
                 <td class="objekt-actions">
-                    <form action="{% url 'rechnungsart_update' k.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'rechnungsart_update' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'rechnungsart_delete' k.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'rechnungsart_delete' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>

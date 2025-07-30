@@ -55,10 +55,10 @@
                     {% endfor %}
                 </td>
                 <td class="objekt-actions"> <!-- Actions column -->
-                    <form action="{% url 'konto_update' k.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'konto_update' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'konto_delete' k.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'konto_delete' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>
