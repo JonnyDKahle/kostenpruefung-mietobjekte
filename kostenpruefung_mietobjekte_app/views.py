@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import Prefetch, Sum
 from django.forms import modelformset_factory
 from django.utils import timezone
@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mietverhaeltnis
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
-from .forms import MieterObjektForm, MietverhaeltnisForm
+from .forms import MieterObjektForm, MietverhaeltnisForm, PasswordConfirmationForm
 
 # Create your views here.
 
@@ -369,6 +369,33 @@ class MietobjektDeleteView(DeleteView):
     def get_queryset(self):
         # Only allow deleting objects created by the user
         return Mietobjekt.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            # Check if password is correct
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                # Password is correct, proceed with deletion
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                # Password is incorrect
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        # If form is invalid or password is incorrect, redisplay the form
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
 
     def get_success_url(self):
         return reverse_lazy('objekt_index')

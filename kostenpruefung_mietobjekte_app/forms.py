@@ -94,3 +94,10 @@ class MietverhaeltnisForm(forms.ModelForm):
             self.fields['primary_mietobjekt'].queryset = Mietobjekt.objects.filter(created_by=user)
             self.fields['mietobjekte'].queryset = Mietobjekt.objects.filter(created_by=user)
             self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt__created_by=user)
+        
+class PasswordConfirmationForm(forms.Form):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}), 
+        label="Passwort zur Bestätigung",
+        help_text="Bitte geben Sie Ihr Passwort ein, um die Löschung zu bestätigen."
+    )
