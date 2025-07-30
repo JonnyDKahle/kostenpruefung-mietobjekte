@@ -1,3 +1,7 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# █████████████████████████ DJANGO IMPORTS & SETUP ████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import Prefetch, Sum
@@ -6,11 +10,18 @@ from django.utils import timezone
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# ██████████████████████████ LOCAL IMPORTS ████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 from .models import Mietobjekt, Mieter, Rechnung, Rechnungsart, Lieferant, Konto, Mieteinheit, Prozent, Mietverhaeltnis
 from .forms import MietobjektForm, RechnungForm, RechnungsartForm, LieferantForm, KontoForm, MieteinheitForm, ProzentForm
 from .forms import MieterObjektForm, MietverhaeltnisForm, PasswordConfirmationForm
 
-# Create your views here.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ███████████████████████ MIETOBJEKT VIEWS ████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def objekt_index(request):
     objekte = Mietobjekt.objects.filter(created_by=request.user)
@@ -42,6 +53,11 @@ def mieteinheit_create(request, mietobjekt_id):
     else:
         form = MieteinheitForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieteinheit_form.html', {'form': form, 'mietobjekt': mietobjekt})
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ████████████████████████████ MIETER VIEWS ███████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def mieter(request):
     mieter = Mieter.objects.filter(created_by=request.user)
@@ -149,6 +165,11 @@ def mieter_create_step1(request):
         form = MieterObjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_objekt_form.html', {'form': form})
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ███████████████████████ RECHNUNG VIEWS ██████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def rechnungen(request):
     rechnungen = Rechnung.objects.filter(created_by=request.user).prefetch_related(
         'lieferant',
@@ -215,6 +236,11 @@ def prozent_bulk_update(request, rechnung_id):
         'rechnung': rechnung,
     })
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ██████████████████████ RECHNUNGSART VIEWS ███████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def kostenarten(request):
     kostenarten = Rechnungsart.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/kostenarten.html', {'kostenarten': kostenarten})
@@ -230,6 +256,11 @@ def rechnungsart_create(request):
     else:
         form = RechnungsartForm()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnungsart_form.html', {'form': form})
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ███████████████████████ LIEFERANT VIEWS ██████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def lieferanten(request):
     lieferanten = Lieferant.objects.filter(created_by=request.user)
@@ -247,6 +278,11 @@ def lieferant_create(request):
         form = LieferantForm()
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant_form.html', {'form': form})
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ████████████████████████ KONTO VIEWS █████████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def konto(request):
     konten = Konto.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/konto.html', {'konten': konten})
@@ -263,6 +299,11 @@ def konto_create(request):
     else:
         form = KontoForm()
     return render(request, 'kostenpruefung_mietobjekte_app/konto_form.html', {'form': form})
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ██████████████████████ AUSWERTUNG VIEWS ██████████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
 
 def auswertung(request):
     mietobjekte = Mietobjekt.objects.filter(created_by=request.user)
@@ -324,6 +365,11 @@ def auswertung(request):
         'einnahmen_values': einnahmen_values if selected_objekt else [],
     })
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ████████████████████ MIETVERHAELTNIS VIEWS ███████████████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def mietverhaeltnis_create(request, mieter_id):
     mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
     if not mieter:
@@ -379,6 +425,13 @@ def mietverhaeltnis_create(request, mieter_id):
         'selected_mietobjekt': selected_mietobjekt
     })
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ██████████████████ CLASS-BASED VIEWS (UPDATE/DELETE) █████████████████████████
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────── MIETOBJEKT UPDATE/DELETE ────────────────────────
+
 class MietobjektUpdateView(UpdateView):
     model = Mietobjekt
     form_class = MietobjektForm
@@ -429,6 +482,9 @@ class MietobjektDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('objekt_index')
 
+
+# ─────────────────────────── MIETER UPDATE/DELETE ────────────────────────────
+
 # Mieter Update/Delete Views
 class MieterUpdateView(UpdateView):
     model = Mieter
@@ -473,6 +529,9 @@ class MieterDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('mieter_laufend')
+
+
+# ─────────────────────────── RECHNUNG UPDATE/DELETE ───────────────────────────
 
 # Rechnung Update/Delete Views
 class RechnungUpdateView(UpdateView):
@@ -519,6 +578,9 @@ class RechnungDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('rechnungen')
 
+
+# ─────────────────────────── RECHNUNGSART UPDATE/DELETE ───────────────────────
+
 # Rechnungsart (Kostenarten) Update/Delete Views
 class RechnungsartUpdateView(UpdateView):
     model = Rechnungsart
@@ -564,6 +626,9 @@ class RechnungsartDeleteView(DeleteView):
     def get_success_url(self):
         return reverse_lazy('kostenarten')
 
+
+# ─────────────────────────── LIEFERANT UPDATE/DELETE ──────────────────────────
+
 # Lieferant Update/Delete Views
 class LieferantUpdateView(UpdateView):
     model = Lieferant
@@ -608,6 +673,9 @@ class LieferantDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('lieferanten')
+
+
+# ─────────────────────────── KONTO UPDATE/DELETE ──────────────────────────────
 
 # Konto Update/Delete Views
 class KontoUpdateView(UpdateView):
