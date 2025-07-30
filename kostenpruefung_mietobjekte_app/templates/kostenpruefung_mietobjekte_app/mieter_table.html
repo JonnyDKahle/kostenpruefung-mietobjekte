@@ -46,7 +46,8 @@
         <table class="object-table">
             <tr>
                 <th colspan="5">Mieter-Information</th>
-                <th colspan="12">Mietverhältnis-Information</th>
+                <th colspan="11">Mietverhältnis-Information</th>
+                <th>Aktionen</th>
             </tr>
             <tr>
                 <th>Vorname</th>
@@ -66,6 +67,7 @@
                 <th>Mietobjekte</th>
                 <th>Mieteinheiten</th>
                 <th>Status</th>
+                <th>Aktionen</th>
             </tr>
             
             {% for m in mieter %}
@@ -76,9 +78,17 @@
                 <td>{{ m.telefon }}</td>
                 <td>{{ m.e_mail }}</td>
                 <td>{{ m.geburtsdatum }}</td>
-                <td colspan="12" style="text-align: center;">
+                <td colspan="11" style="text-align: center;">
                     <form action="{% url 'mietverhaeltnis_create' m.id %}" method="get">
                         <button class="action-btn" type="submit">Neues Mietverhältnis anlegen</button>
+                    </form>
+                </td>
+                <td class="objekt-actions">
+                    <form action="{% url 'mieter_update' m.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'mieter_delete' m.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>
             </tr>

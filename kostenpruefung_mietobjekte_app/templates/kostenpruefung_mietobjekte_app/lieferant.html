@@ -37,6 +37,7 @@
                 <th>Land</th>
                 <th>E-Mail</th>
                 <th>Telefon</th>
+                <th>Aktionen</th> <!-- New column for actions -->
             </tr>
             {% for l in lieferanten %}
             <tr>
@@ -50,10 +51,18 @@
                 <td>{{ l.land }}</td>
                 <td>{{ l.e_mail }}</td>
                 <td>{{ l.telefon }}</td>
+                <td class="objekt-actions"> <!-- Actions column data -->
+                    <form action="{% url 'lieferant_update' l.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'lieferant_delete' l.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Löschen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="10">Keine Lieferanten vorhanden.</td>
+                <td colspan="11">Keine Lieferanten vorhanden.</td> <!-- Updated colspan -->
             </tr>
             {% endfor %}
         </table>

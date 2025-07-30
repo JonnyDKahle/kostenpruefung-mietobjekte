@@ -36,6 +36,7 @@
                 <th>Bezahlt am</th>
                 <th>Mietobjekte</th>
                 <th>Mieteinheiten</th> <!-- New column -->
+                <th>Aktionen</th> <!-- New column for actions -->
             </tr>
             {% for r in rechnungen %}
             <tr>
@@ -65,10 +66,18 @@
                         <button class="action-btn" type="submit">%</button>
                     </form>
                 </td>
+                <td class="objekt-actions">
+                    <form action="{% url 'rechnung_update' r.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'rechnung_delete' r.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Löschen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9">Keine Rechnungen vorhanden.</td>
+                <td colspan="10">Keine Rechnungen vorhanden.</td>
             </tr>
             {% endfor %}
         </table>

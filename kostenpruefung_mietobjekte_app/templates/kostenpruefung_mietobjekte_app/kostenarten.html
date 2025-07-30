@@ -29,14 +29,23 @@
         <table class="object-table">
             <tr>
                 <th>Name</th>
+                <th>Aktionen</th>
             </tr>
             {% for k in kostenarten %}
             <tr>
                 <td>{{ k.name }}</td>
+                <td class="objekt-actions">
+                    <form action="{% url 'rechnungsart_update' k.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'rechnungsart_delete' k.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Löschen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="1">Keine Kostenarten vorhanden.</td>
+                <td colspan="2">Keine Kostenarten vorhanden.</td>
             </tr>
             {% endfor %}
         </table>

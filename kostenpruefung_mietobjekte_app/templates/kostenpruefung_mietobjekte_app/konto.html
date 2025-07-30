@@ -30,6 +30,7 @@
                 <th>Mieter</th>
                 <th>Lieferanten</th>
                 <th>Mietobjekte</th>
+                <th>Aktionen</th> <!-- New column for actions -->
             </tr>
             {% for k in konten %}
             <tr>
@@ -53,10 +54,18 @@
                         {{ obj.name }}{% if not forloop.last %},<br>{% endif %}
                     {% endfor %}
                 </td>
+                <td class="objekt-actions"> <!-- Actions column -->
+                    <form action="{% url 'konto_update' k.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Bearbeiten</button>
+                    </form>
+                    <form action="{% url 'konto_delete' k.id %}" method="get" style="display:inline;">
+                        <button class="action-btn" type="submit">Löschen</button>
+                    </form>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">Keine Kontobewegungen vorhanden.</td>
+                <td colspan="9">Keine Kontobewegungen vorhanden.</td> <!-- Updated colspan -->
             </tr>
             {% endfor %}
         </table>

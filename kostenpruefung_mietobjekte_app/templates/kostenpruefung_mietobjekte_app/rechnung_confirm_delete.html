@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechnung löschen</title>
+    <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
+    <style>
+        .error-message {
+            color: #e74c3c;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #ffecb3;
+            border-left: 4px solid #ff9800;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .password-field {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .password-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .password-field input {
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .action-btn.delete {
+            background-color: #e74c3c;
+        }
+        .action-btn.cancel {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>Mieter löschen</h2>
+        
+        <div class="warning">
+            <p><strong>Achtung:</strong> Sie sind dabei, die Rechnung <strong>"{{ object.rechnungsnummer }} {{ object.name }}"</strong> zu löschen.</p>
+            <p>Diese Aktion kann nicht rückgängig gemacht werden und alle zugehörigen Daten werden ebenfalls gelöscht.</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="password-field">
+                <label for="{{ password_form.password.id_for_label }}">
+                    {{ password_form.password.label }}:
+                </label>
+                {{ password_form.password }}
+                {% if password_form.password.help_text %}
+                    <p class="help-text">{{ password_form.password.help_text }}</p>
+                {% endif %}
+                {% if password_form.password.errors %}
+                    <div class="error-message">
+                        {% for error in password_form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="button-group">
+                <button class="action-btn delete" type="submit">Ja, löschen</button>
+                <a class="action-btn cancel" href="{% url 'rechnungen' %}">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

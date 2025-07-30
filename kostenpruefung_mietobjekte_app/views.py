@@ -399,3 +399,228 @@ class MietobjektDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('objekt_index')
+
+# Mieter Update/Delete Views
+class MieterUpdateView(UpdateView):
+    model = Mieter
+    form_class = MieterObjektForm
+    template_name = 'kostenpruefung_mietobjekte_app/mieter_form.html'
+
+    def get_queryset(self):
+        return Mieter.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('mieter_laufend')
+
+class MieterDeleteView(DeleteView):
+    model = Mieter
+    template_name = 'kostenpruefung_mietobjekte_app/mieter_confirm_delete.html'
+
+    def get_queryset(self):
+        return Mieter.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('mieter_laufend')
+
+# Rechnung Update/Delete Views
+class RechnungUpdateView(UpdateView):
+    model = Rechnung
+    form_class = RechnungForm
+    template_name = 'kostenpruefung_mietobjekte_app/rechnung_form.html'
+
+    def get_queryset(self):
+        return Rechnung.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('rechnungen')
+
+class RechnungDeleteView(DeleteView):
+    model = Rechnung
+    template_name = 'kostenpruefung_mietobjekte_app/rechnung_confirm_delete.html'
+
+    def get_queryset(self):
+        return Rechnung.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('rechnungen')
+
+# Rechnungsart (Kostenarten) Update/Delete Views
+class RechnungsartUpdateView(UpdateView):
+    model = Rechnungsart
+    form_class = RechnungsartForm
+    template_name = 'kostenpruefung_mietobjekte_app/rechnungsart_form.html'
+
+    def get_queryset(self):
+        return Rechnungsart.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('kostenarten')
+
+class RechnungsartDeleteView(DeleteView):
+    model = Rechnungsart
+    template_name = 'kostenpruefung_mietobjekte_app/rechnungsart_confirm_delete.html'
+
+    def get_queryset(self):
+        return Rechnungsart.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('kostenarten')
+
+# Lieferant Update/Delete Views
+class LieferantUpdateView(UpdateView):
+    model = Lieferant
+    form_class = LieferantForm
+    template_name = 'kostenpruefung_mietobjekte_app/lieferant_form.html'
+
+    def get_queryset(self):
+        return Lieferant.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('lieferanten')
+
+class LieferantDeleteView(DeleteView):
+    model = Lieferant
+    template_name = 'kostenpruefung_mietobjekte_app/lieferant_confirm_delete.html'
+
+    def get_queryset(self):
+        return Lieferant.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('lieferanten')
+
+# Konto Update/Delete Views
+class KontoUpdateView(UpdateView):
+    model = Konto
+    form_class = KontoForm
+    template_name = 'kostenpruefung_mietobjekte_app/konto_form.html'
+
+    def get_queryset(self):
+        return Konto.objects.filter(created_by=self.request.user)
+
+    def get_success_url(self):
+        return reverse_lazy('konto')
+
+class KontoDeleteView(DeleteView):
+    model = Konto
+    template_name = 'kostenpruefung_mietobjekte_app/konto_confirm_delete.html'
+
+    def get_queryset(self):
+        return Konto.objects.filter(created_by=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['password_form'] = PasswordConfirmationForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PasswordConfirmationForm(request.POST)
+        
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            user = request.user
+            
+            if user.check_password(password):
+                self.object.delete()
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                form.add_error('password', 'Das Passwort ist nicht korrekt.')
+        
+        return self.render_to_response(
+            self.get_context_data(object=self.object, password_form=form)
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('konto')
