@@ -9,21 +9,21 @@
 <body>
 <div class="flex-container">
     <nav class="sidebar">
-        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
-        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Mieter</a>
         <a class="sidebar-link" href="#">Kosten</a>
         <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
-            <li><a href="{% url 'rechnungen' %}">Rechnungen</a></li>
-            <li><a href="{% url 'kostenarten' %}">Kostenarten</a></li>
-            <li><a href="{% url 'lieferanten' %}">Lieferant</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Rechnungen</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:kostenarten' %}">Kostenarten</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:lieferanten' %}">Lieferant</a></li>
         </ul>
-        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
-        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
 
         <h2>Alle Kostenarten</h2>
-        <form action="{% url 'rechnungsart_create' %}" method="get" style="margin-bottom: 16px;">
+        <form action="{% url 'kostenpruefung_mietobjekte_app:rechnungsart_create' %}" method="get" style="margin-bottom: 16px;">
             <button class="action-btn" type="submit">Anlegen</button>
         </form>
         <table class="object-table">
@@ -35,10 +35,10 @@
             <tr>
                 <td>{{ k.name }}</td>
                 <td class="objekt-actions">
-                    <form action="{% url 'rechnungsart_update' k.id %}" method="get" class="inline-form">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:rechnungsart_update' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'rechnungsart_delete' k.id %}" method="get" class="inline-form">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:rechnungsart_delete' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>

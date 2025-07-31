@@ -9,22 +9,22 @@
 <body>
 <div class="flex-container">
     <nav class="sidebar">
-        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
-        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Mieter</a>
         <ul style="list-style-type: disc; margin-left: 30px; margin-bottom: 20px;">
-            <li><a href="{% url 'mieter_laufend' %}">Laufend</a></li>
-            <li><a href="{% url 'mieter_zukuenftig' %}">Zukuenftig</a></li>
-            <li><a href="{% url 'mieter_archiv' %}">Archiv</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Laufend</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:mieter_zukuenftig' %}">Zukuenftig</a></li>
+            <li><a href="{% url 'kostenpruefung_mietobjekte_app:mieter_archiv' %}">Archiv</a></li>
         </ul>
-        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
-        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
-        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
         <h2>{{ heading }}</h2>
         
         <div class="button-group">
-            <form action="{% url 'mieter_create_step1' %}" method="get">
+            <form action="{% url 'kostenpruefung_mietobjekte_app:mieter_create_step1' %}" method="get">
                 <button class="action-btn" type="submit">Neuen Mieter anlegen</button>
             </form>
             
@@ -84,15 +84,15 @@
                 <td>{{ m.e_mail }}</td>
                 <td>{{ m.geburtsdatum }}</td>
                 <td colspan="11" style="text-align: center;">
-                    <form action="{% url 'mietverhaeltnis_create' m.id %}" method="get">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:mietverhaeltnis_create' m.id %}" method="get">
                         <button class="action-btn" type="submit">Neues Mietverhältnis anlegen</button>
                     </form>
                 </td>
                 <td class="objekt-actions">
-                    <form action="{% url 'mieter_update' m.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:mieter_update' m.id %}" method="get" style="display:inline;">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'mieter_delete' m.id %}" method="get" style="display:inline;">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:mieter_delete' m.id %}" method="get" style="display:inline;">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>
@@ -157,7 +157,7 @@
                             button.disabled = false;
                             // Update the button's URL when a mieter is selected
                             button.onclick = function() {
-                                window.location.href = "{% url 'mietverhaeltnis_create' 0 %}".replace('0', select.value);
+                                window.location.href = "{% url 'kostenpruefung_mietobjekte_app:mietverhaeltnis_create' 0 %}".replace('0', select.value);
                             }
                         } else {
                             button.disabled = true;

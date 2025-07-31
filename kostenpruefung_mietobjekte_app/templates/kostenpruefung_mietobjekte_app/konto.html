@@ -9,15 +9,15 @@
 <body>
 <div class="flex-container">
     <nav class="sidebar">
-        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
-        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
-        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
-        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
-        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
         <h2>Alle Kontobewegungen</h2>
-        <form action="{% url 'konto_create' %}" method="get" style="margin-bottom: 16px;">
+        <form action="{% url 'kostenpruefung_mietobjekte_app:konto_create' %}" method="get" style="margin-bottom: 16px;">
             <button class="action-btn" type="submit">Anlegen</button>
         </form>
         <table class="object-table">
@@ -57,10 +57,10 @@
                     {% endfor %}
                 </td>
                 <td class="objekt-actions"> <!-- Actions column -->
-                    <form action="{% url 'konto_update' k.id %}" method="get" class="inline-form">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:konto_update' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
                     </form>
-                    <form action="{% url 'konto_delete' k.id %}" method="get" class="inline-form">
+                    <form action="{% url 'kostenpruefung_mietobjekte_app:konto_delete' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Löschen</button>
                     </form>
                 </td>
