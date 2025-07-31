@@ -225,3 +225,66 @@ body { margin: 0; font-family: Arial, sans-serif; }
     width: 400px;
     height: 400px;
 }
+
+/* Filter Options Styling */
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.filter-option {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+}
+
+.filter-option:has(input:checked) {
+    background-color: #e9f7fe;
+    border-left: 3px solid #4e79a7;
+}
+
+/* Hide conditional inputs by default */
+.conditional-inputs {
+    display: none;
+    width: 100%;
+    margin-top: 8px;
+    margin-left: 24px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+}
+
+/* Show conditional inputs when the parent radio button is checked */
+.filter-option:has(input[value="month_year"]:checked) .month-year-inputs,
+.filter-option:has(input[value="custom_range"]:checked) .date-range-inputs {
+    display: block;
+}
+
+/* Style for radio inputs and labels */
+.filter-option input[type="radio"] {
+    margin-top: 2px;
+}
+
+.filter-option label {
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-option {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .conditional-inputs {
+        margin-left: 0;
+        width: 100%;
+    }
+}
