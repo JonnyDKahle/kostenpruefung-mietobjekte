@@ -22,62 +22,76 @@
         
         <form method="get" class="filters-form">
             <div class="filter-section">
-                <div class="filter-row">
-                    <label for="mietobjekt">Mietobjekt:</label>
-                    <select name="mietobjekt" id="mietobjekt">
-                        <option value="">-- Bitte wählen --</option>
-                        {% for obj in mietobjekte %}
-                            <option value="{{ obj.id }}" {% if selected_objekt and obj.id == selected_objekt.id %}selected{% endif %}>{{ obj.name }}</option>
-                        {% endfor %}
-                    </select>
+                <!-- Object Selection -->
+                <div class="filter-group">
+                    <h3 class="filter-heading">1. Mietobjekt auswählen</h3>
+                    <div class="filter-row">
+                        <label for="mietobjekt">Mietobjekt:</label>
+                        <select name="mietobjekt" id="mietobjekt" class="primary-select">
+                            <option value="">-- Bitte wählen --</option>
+                            {% for obj in mietobjekte %}
+                                <option value="{{ obj.id }}" {% if selected_objekt and obj.id == selected_objekt.id %}selected{% endif %}>{{ obj.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="filter-row">
-                    <label for="time_filter">Zeitraum:</label>
-                    <select name="time_filter" id="time_filter">
-                        <option value="current_year" {% if time_filter == 'current_year' or not time_filter %}selected{% endif %}>Aktuelles Jahr</option>
-                        <option value="last_year" {% if time_filter == 'last_year' %}selected{% endif %}>Letztes Jahr</option>
-                        <option value="total" {% if time_filter == 'total' %}selected{% endif %}>Gesamt</option>
-                        <option value="month_year" {% if time_filter == 'month_year' %}selected{% endif %}>Monat/Jahr</option>
-                        <option value="custom_range" {% if time_filter == 'custom_range' %}selected{% endif %}>Zeitraum</option>
-                    </select>
-                </div>
-                
-                <div class="filter-row month-year-filter">
-                    <label for="month">Monat:</label>
-                    <select name="month" id="month">
-                        <option value="1" {% if month == '1' %}selected{% endif %}>Januar</option>
-                        <option value="2" {% if month == '2' %}selected{% endif %}>Februar</option>
-                        <option value="3" {% if month == '3' %}selected{% endif %}>März</option>
-                        <option value="4" {% if month == '4' %}selected{% endif %}>April</option>
-                        <option value="5" {% if month == '5' %}selected{% endif %}>Mai</option>
-                        <option value="6" {% if month == '6' %}selected{% endif %}>Juni</option>
-                        <option value="7" {% if month == '7' %}selected{% endif %}>Juli</option>
-                        <option value="8" {% if month == '8' %}selected{% endif %}>August</option>
-                        <option value="9" {% if month == '9' %}selected{% endif %}>September</option>
-                        <option value="10" {% if month == '10' %}selected{% endif %}>Oktober</option>
-                        <option value="11" {% if month == '11' %}selected{% endif %}>November</option>
-                        <option value="12" {% if month == '12' %}selected{% endif %}>Dezember</option>
-                    </select>
+                <!-- Time Period Selection -->
+                <div class="filter-group">
+                    <h3 class="filter-heading">2. Zeitraum festlegen</h3>
+                    <div class="filter-row">
+                        <label for="time_filter">Zeitraum-Typ:</label>
+                        <select name="time_filter" id="time_filter" class="primary-select">
+                            <option value="current_year" {% if time_filter == 'current_year' or not time_filter %}selected{% endif %}>Aktuelles Jahr ({{ current_year }})</option>
+                            <option value="last_year" {% if time_filter == 'last_year' %}selected{% endif %}>Letztes Jahr ({{ last_year }})</option>
+                            <option value="total" {% if time_filter == 'total' %}selected{% endif %}>Gesamter Zeitraum</option>
+                            <option value="month_year" {% if time_filter == 'month_year' %}selected{% endif %}>Bestimmter Monat/Jahr</option>
+                            <option value="custom_range" {% if time_filter == 'custom_range' %}selected{% endif %}>Benutzerdefinierter Zeitraum</option>
+                        </select>
+                    </div>
                     
-                    <label for="year">Jahr:</label>
-                    <select name="year" id="year">
-                        {% for year_option in available_years %}
-                            <option value="{{ year_option }}" {% if year == year_option %}selected{% endif %}>{{ year_option }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="filter-row date-range-filter">
-                    <label for="start_date">Von:</label>
-                    <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    <!-- Month/Year Selection (highlighted when month_year is selected) -->
+                    <div class="filter-subgroup {% if time_filter == 'month_year' %}active-filter{% endif %}">
+                        <div class="filter-row">
+                            <label for="month">Monat:</label>
+                            <select name="month" id="month">
+                                <option value="1" {% if month == '1' %}selected{% endif %}>Januar</option>
+                                <option value="2" {% if month == '2' %}selected{% endif %}>Februar</option>
+                                <option value="3" {% if month == '3' %}selected{% endif %}>März</option>
+                                <option value="4" {% if month == '4' %}selected{% endif %}>April</option>
+                                <option value="5" {% if month == '5' %}selected{% endif %}>Mai</option>
+                                <option value="6" {% if month == '6' %}selected{% endif %}>Juni</option>
+                                <option value="7" {% if month == '7' %}selected{% endif %}>Juli</option>
+                                <option value="8" {% if month == '8' %}selected{% endif %}>August</option>
+                                <option value="9" {% if month == '9' %}selected{% endif %}>September</option>
+                                <option value="10" {% if month == '10' %}selected{% endif %}>Oktober</option>
+                                <option value="11" {% if month == '11' %}selected{% endif %}>November</option>
+                                <option value="12" {% if month == '12' %}selected{% endif %}>Dezember</option>
+                            </select>
+                            
+                            <label for="year">Jahr:</label>
+                            <select name="year" id="year">
+                                {% for year_option in available_years %}
+                                    <option value="{{ year_option }}" {% if year == year_option %}selected{% endif %}>{{ year_option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                     
-                    <label for="end_date">Bis:</label>
-                    <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    <!-- Custom Date Range (highlighted when custom_range is selected) -->
+                    <div class="filter-subgroup {% if time_filter == 'custom_range' %}active-filter{% endif %}">
+                        <div class="filter-row">
+                            <label for="start_date">Von:</label>
+                            <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                            
+                            <label for="end_date">Bis:</label>
+                            <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="filter-row">
-                    <button type="submit" class="action-btn">Filter anwenden</button>
+                <div class="filter-actions">
+                    <button type="submit" class="action-btn">Auswertung anzeigen</button>
                 </div>
             </div>
         </form>
