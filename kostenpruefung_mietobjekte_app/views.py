@@ -306,51 +306,158 @@ def konto_create(request):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def auswertung(request):
+    import datetime
+    from django.db.models import Q
+
     mietobjekte = Mietobjekt.objects.filter(created_by=request.user)
     selected_id = request.GET.get('mietobjekt')
     selected_objekt = Mietobjekt.objects.filter(id=selected_id, created_by=request.user).first() if selected_id else None
 
+    # Get time filter parameters
+    time_filter = request.GET.get('time_filter', 'current_year')  # Default to current year
+    
+    # Initialize date range variables
+    start_date = None
+    end_date = None
+    filter_display = "Unbekannt"
+    
+    # Get current date info
+    today = datetime.date.today()
+    current_year = today.year
+    last_year = current_year - 1
+    
+    # Available years for dropdown (from 5 years ago to current year)
+    available_years = list(range(current_year - 5, current_year + 1))
+    available_years.reverse()
+
+    # Dropdown has the curent year selected as default
+    try:
+        selected_year = int(request.GET.get('year', current_year))
+    except (ValueError, TypeError):
+        selected_year = current_year
+    
+    # Set date range based on time filter
+    if time_filter == 'current_year':
+        start_date = datetime.date(current_year, 1, 1)
+        end_date = datetime.date(current_year, 12, 31)
+        filter_display = f"Aktuelles Jahr ({current_year})"
+    
+    elif time_filter == 'last_year':
+        start_date = datetime.date(last_year, 1, 1)
+        end_date = datetime.date(last_year, 12, 31)
+        filter_display = f"Letztes Jahr ({last_year})"
+    
+    elif time_filter == 'total':
+        # No date filtering
+        filter_display = "Gesamter Zeitraum"
+    
+    elif time_filter == 'month_year':
+        selected_month = int(request.GET.get('month', today.month))
+        selected_year = int(request.GET.get('year', current_year))
+        
+        # Get the last day of the selected month
+        if selected_month == 12:
+            last_day = 31
+        else:
+            last_day = (datetime.date(selected_year, selected_month + 1, 1) - datetime.timedelta(days=1)).day
+        
+        start_date = datetime.date(selected_year, selected_month, 1)
+        end_date = datetime.date(selected_year, selected_month, last_day)
+        
+        # Month name for display
+        month_names = ["Januar", "Februar", "März", "April", "Mai", "Juni", 
+                       "Juli", "August", "September", "Oktober", "November", "Dezember"]
+        filter_display = f"{month_names[selected_month-1]} {selected_year}"
+    
+    elif time_filter == 'custom_range':
+        try:
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+            
+            if start_date_str:
+                start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            
+            if end_date_str:
+                end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            
+            if start_date and end_date:
+                filter_display = f"Von {start_date.strftime('%d.%m.%Y')} bis {end_date.strftime('%d.%m.%Y')}"
+            else:
+                # Default to current year if invalid dates
+                start_date = datetime.date(current_year, 1, 1)
+                end_date = datetime.date(current_year, 12, 31)
+                filter_display = f"Aktuelles Jahr ({current_year})"
+        except (ValueError, TypeError):
+            # Handle invalid date format
+            start_date = datetime.date(current_year, 1, 1)
+            end_date = datetime.date(current_year, 12, 31)
+            filter_display = f"Aktuelles Jahr ({current_year})"
+
     einnahmen_sum = 0
     ausgaben_sum = 0
-    chart_data = {}
+    chart_labels = []
+    chart_values = []
+    einnahmen_labels = []
+    einnahmen_values = []
 
     if selected_objekt:
+        # Date filter conditions
+        date_filter = Q()
+        if start_date and end_date and time_filter != 'total':
+            konto_date_filter = Q(buchungstag__gte=start_date) & Q(buchungstag__lte=end_date)
+            rechnung_date_filter = Q(datum__gte=start_date) & Q(datum__lte=end_date)
+        else:
+            konto_date_filter = Q()
+            rechnung_date_filter = Q()
+            
         # Calculate Einnahmen (from Konto)
-        kontos = Konto.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
+        kontos = Konto.objects.filter(
+            mietobjekt=selected_objekt, 
+            created_by=request.user,
+            betrag__gt=0
+        ).filter(konto_date_filter)
+        
         for konto in kontos:
-            betrag = getattr(konto, 'betrag', 0)
-            if betrag > 0:  # Only include positive amounts as Einnahmen
-                einnahmen_sum += betrag
-                kategorie = getattr(konto, 'buchungsart', None)
-                cat_name = kategorie.name if kategorie else "Sonstige"
-                chart_data[cat_name] = chart_data.get(cat_name, 0) + betrag
+            einnahmen_sum += konto.betrag
 
         # Calculate Ausgaben (from Rechnung)
-        rechnungen = Rechnung.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
+        rechnungen = Rechnung.objects.filter(
+            mietobjekt=selected_objekt, 
+            created_by=request.user
+        ).filter(rechnung_date_filter)
+        
         for rechnung in rechnungen:
             ausgaben_sum += rechnung.betrag
 
-        # Group Ausgaben by art/buchungsart
+        # Group Ausgaben by art/buchungsart with date filter
         ausgaben_by_art = (
-            Rechnung.objects.filter(mietobjekt=selected_objekt, created_by=request.user)
+            Rechnung.objects.filter(
+                mietobjekt=selected_objekt, 
+                created_by=request.user
+            ).filter(rechnung_date_filter)
             .values('art__name')  # Group by art name
             .annotate(total=Sum('betrag'))  # Sum up betrag for each art
         )
 
         # Prepare data for the pie chart
-        chart_labels = [item['art__name'] for item in ausgaben_by_art]
+        chart_labels = [item['art__name'] or "Ohne Kategorie" for item in ausgaben_by_art]
         chart_values = [float(item['total']) for item in ausgaben_by_art]  # Convert Decimal to float
 
-        # Group Einnahmen by art/buchungsart
+        # Group Einnahmen by art/buchungsart with date filter
         einnahmen_by_art = (
-            Konto.objects.filter(mietobjekt=selected_objekt, betrag__gt=0, created_by=request.user)
+            Konto.objects.filter(
+                mietobjekt=selected_objekt, 
+                betrag__gt=0, 
+                created_by=request.user
+            ).filter(konto_date_filter)
             .values('buchungsart__name')  # Group by buchungsart name
             .annotate(total=Sum('betrag'))  # Sum up betrag for each buchungsart
         )
 
         # Prepare data for the Einnahmen pie chart
-        einnahmen_labels = [item['buchungsart__name'] for item in einnahmen_by_art]
+        einnahmen_labels = [item['buchungsart__name'] or "Ohne Kategorie" for item in einnahmen_by_art]
         einnahmen_values = [float(item['total']) for item in einnahmen_by_art]  # Convert Decimal to float
+    
     ergebnis = einnahmen_sum - ausgaben_sum
 
     return render(request, 'kostenpruefung_mietobjekte_app/auswertung.html', {
@@ -359,10 +466,18 @@ def auswertung(request):
         'einnahmen': einnahmen_sum,
         'ausgaben': ausgaben_sum,
         'ergebnis': ergebnis,
-        'chart_labels': chart_labels if selected_objekt else [],
-        'chart_values': chart_values if selected_objekt else [],
-        'einnahmen_labels': einnahmen_labels if selected_objekt else [],
-        'einnahmen_values': einnahmen_values if selected_objekt else [],
+        'chart_labels': chart_labels,
+        'chart_values': chart_values,
+        'einnahmen_labels': einnahmen_labels,
+        'einnahmen_values': einnahmen_values,
+        'time_filter': time_filter,
+        'filter_display': filter_display,
+        'start_date': start_date,
+        'end_date': end_date,
+        'month': request.GET.get('month', str(today.month)),
+        # Even safer approach with error handling
+        'year': selected_year,
+        'available_years': available_years,
     })
 
 
