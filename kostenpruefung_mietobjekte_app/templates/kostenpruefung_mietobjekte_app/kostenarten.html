@@ -28,16 +28,14 @@
         </form>
         <table class="object-table">
             <tr>
-                <th>Farbe</th>
                 <th>Name</th>
+                <th>Farbcode (Hexadecimal)</th>
                 <th>Aktionen</th>
             </tr>
             {% for k in kostenarten %}
             <tr>
-                <td>
-                    <!-- <div class="color-preview" style="background-color: {{ k.farbe }};" title="Farbe: {{ k.farbe }}"></div> -->
-                </td>
                 <td>{{ k.name }}</td>
+                <td>{{ k.farbe }}</td>
                 <td class="objekt-actions">
                     <form action="{% url 'kostenpruefung_mietobjekte_app:rechnungsart_update' k.id %}" method="get" class="inline-form">
                         <button class="action-btn" type="submit">Bearbeiten</button>
