@@ -9,11 +9,11 @@
 <body>
 <div class="flex-container">
     <nav class="sidebar">
-        <a class="sidebar-link" href="{% url 'objekt_index' %}">Objekt</a>
-        <a class="sidebar-link" href="{% url 'mieter_laufend' %}">Mieter</a>
-        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
-        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
-        <a class="sidebar-link" href="{% url 'auswertung' %}">Auswertung</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:auswertung' %}">Auswertung</a>
     </nav>
     <div class="main-content">
         <h2>Mieter löschen</h2>
@@ -44,7 +44,7 @@
             
             <div class="button-group">
                 <button class="action-btn delete" type="submit">Ja, löschen</button>
-                <a class="action-btn cancel" href="{% url 'lieferanten' %}">Abbrechen</a>
+                <a class="action-btn cancel" href="{% url 'kostenpruefung_mietobjekte_app:lieferanten' %}">Abbrechen</a>
             </div>
         </form>
     </div>

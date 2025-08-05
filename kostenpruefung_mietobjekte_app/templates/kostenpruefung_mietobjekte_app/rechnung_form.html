@@ -13,7 +13,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="action-btn">Create</button>
-        <a href="{% url 'rechnungen' %}" class="action-btn" style="background:#888;">Cancel</a>
+        <a href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}" class="action-btn" style="background:#888;">Cancel</a>
     </form>
 </div>
 </body>

@@ -16,13 +16,13 @@
             <li><a href="#">Zukuenftig</a></li>
             <li><a href="#">Archiv</a></li>
         </ul>
-        <a class="sidebar-link" href="{% url 'rechnungen' %}">Kosten</a>
-        <a class="sidebar-link" href="{% url 'konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
         <a class="sidebar-link" href="#">Auswertung</a>
     </nav>
     <div class="main-content">
         <h2>Alle Mieter</h2>
-        <form action="{% url 'mieter_create_step1' %}" method="get" style="margin-bottom: 16px;">
+        <form action="{% url 'kostenpruefung_mietobjekte_app:mieter_create_step1' %}" method="get" style="margin-bottom: 16px;">
             <button class="action-btn" type="submit">Anlegen</button>
         </form>
         <table class="object-table">

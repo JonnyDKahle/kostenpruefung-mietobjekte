@@ -137,12 +137,15 @@
         {{ einnahmen_values|json_script:"einnahmenValuesData" }}
         {{ chart_labels|json_script:"chartLabelsData" }}
         {{ chart_values|json_script:"chartValuesData" }}
+        {{ chart_colors|json_script:"chartColorsData" }}
+        {{ einnahmen_colors|json_script:"einnahmenColorsData" }}
         
         <script>
             // Google Chart for Einnahmen
             try {
                 const einnahmenLabels = JSON.parse(document.getElementById('einnahmenLabelsData').textContent || '[]');
                 const einnahmenValues = JSON.parse(document.getElementById('einnahmenValuesData').textContent || '[]');
+                const einnahmenColors = JSON.parse(document.getElementById('einnahmenColorsData').textContent || '[]');
 
                 if (einnahmenLabels.length > 0 && einnahmenValues.length > 0) {
                     google.charts.load('current', { packages: ['corechart'] });
@@ -163,7 +166,7 @@
                             pieHole: 0.4,
                             width: 400,
                             height: 400,
-                            colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
+                            colors: einnahmenColors.length > 0 ? einnahmenColors : ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
                             legend: { position: 'bottom' }
                         };
 
@@ -179,6 +182,7 @@
             try {
                 const chartLabels = JSON.parse(document.getElementById('chartLabelsData').textContent || '[]');
                 const chartValues = JSON.parse(document.getElementById('chartValuesData').textContent || '[]');
+                const chartColors = JSON.parse(document.getElementById('chartColorsData').textContent || '[]');
 
                 if (chartLabels.length > 0 && chartValues.length > 0) {
                     google.charts.load('current', { packages: ['corechart'] });
@@ -199,7 +203,7 @@
                             pieHole: 0.4,
                             width: 400,
                             height: 400,
-                            colors: ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
+                            colors: chartColors.length > 0 ? chartColors : ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7'],
                             legend: { position: 'bottom' }
                         };
 

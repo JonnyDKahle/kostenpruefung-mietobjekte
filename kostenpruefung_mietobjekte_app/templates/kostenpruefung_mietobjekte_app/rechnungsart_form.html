@@ -3,18 +3,71 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Rechnungsart anlegen</title>
+    <title>{% if object %}Kostenart bearbeiten{% else %}Neue Kostenart{% endif %}</title>
     <link rel="stylesheet" href="{% static 'kostenpruefung_mietobjekte_app/style.css' %}">
 </head>
 <body>
-<div class="main-content">
-    <h2>Neue Rechnungsart anlegen</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="action-btn">Create</button>
-        <a href="{% url 'kostenarten' %}" class="action-btn" style="background:#888;">Cancel</a>
-    </form>
+<div class="flex-container">
+    <nav class="sidebar">
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:objekt_index' %}">Objekt</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:mieter_laufend' %}">Mieter</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:rechnungen' %}">Kosten</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:konto' %}">Konto</a>
+        <a class="sidebar-link" href="{% url 'kostenpruefung_mietobjekte_app:auswertung' %}">Auswertung</a>
+    </nav>
+    <div class="main-content">
+        <h2>{% if object %}Kostenart bearbeiten{% else %}Neue Kostenart anlegen{% endif %}</h2>
+        
+        <form method="post" class="standard-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="error-message">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.farbe.id_for_label }}">{{ form.farbe.label }}</label>
+                <div class="color-input-group">
+                    {{ form.farbe }}
+                    <div class="color-preview-live" id="color-preview"></div>
+                </div>
+                <small class="form-help">Diese Farbe wird in Diagrammen und Auswertungen verwendet</small>
+                {% if form.farbe.errors %}
+                    <div class="error-message">{{ form.farbe.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="action-btn">{% if object %}Aktualisieren{% else %}Erstellen{% endif %}</button>
+                <a href="{% url 'kostenpruefung_mietobjekte_app:kostenarten' %}" class="action-btn cancel">Abbrechen</a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+// Live color preview
+document.addEventListener('DOMContentLoaded', function() {
+    const colorInput = document.getElementById('{{ form.farbe.id_for_label }}');
+    const colorPreview = document.getElementById('color-preview');
+    
+    function updatePreview() {
+        const color = colorInput.value;
+        colorPreview.style.backgroundColor = color;
+        colorPreview.textContent = color.toUpperCase();
+    }
+    
+    // Initial preview
+    updatePreview();
+    
+    // Update preview on change
+    colorInput.addEventListener('input', updatePreview);
+    colorInput.addEventListener('change', updatePreview);
+});
+</script>
 </body>
 </html>

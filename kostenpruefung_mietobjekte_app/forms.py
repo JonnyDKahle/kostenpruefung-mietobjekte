@@ -50,7 +50,19 @@ class ProzentForm(forms.ModelForm):
 class RechnungsartForm(forms.ModelForm):
     class Meta:
         model = Rechnungsart
-        exclude = ['created_by']
+        fields = ['name', 'farbe']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'farbe': forms.TextInput(attrs={
+                'type': 'color',
+                'class': 'form-control color-picker',
+                'title': 'Wählen Sie eine Farbe für diese Kostenart'
+            })
+        }
+        labels = {
+            'name': 'Name der Kostenart',
+            'farbe': 'Farbe für Diagramme'
+        }
 
 class LieferantForm(forms.ModelForm):
 

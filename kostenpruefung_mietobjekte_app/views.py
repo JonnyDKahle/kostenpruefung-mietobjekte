@@ -34,7 +34,7 @@ def mietobjekt_create(request):
             mietobjekt = form.save(commit=False)
             mietobjekt.created_by = request.user
             mietobjekt.save()
-            return redirect('objekt_index')
+            return redirect('kostenpruefung_mietobjekte_app:objekt_index')
     else:
         form = MietobjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mietobjekt_form.html', {'form': form})
@@ -49,7 +49,7 @@ def mieteinheit_create(request, mietobjekt_id):
             mieteinheit = form.save(commit=False)
             mieteinheit.mietobjekt = mietobjekt  # Prefill and hide from user
             mieteinheit.save()
-            return redirect('objekt_index')
+            return redirect('kostenpruefung_mietobjekte_app:objekt_index')
     else:
         form = MieteinheitForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieteinheit_form.html', {'form': form, 'mietobjekt': mietobjekt})
@@ -160,7 +160,7 @@ def mieter_create_step1(request):
             mieter.save()
             
             # Redirect back to the mieter_laufend page instead of mietverhaeltnis_create
-            return redirect('mieter_laufend')
+            return redirect('kostenpruefung_mietobjekte_app:mieter_laufend')
     else:
         form = MieterObjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mieter_objekt_form.html', {'form': form})
@@ -196,7 +196,7 @@ def rechnung_create(request):
             rechnung.created_by = request.user
             rechnung.save()
             form.save_m2m()
-            return redirect('rechnungen')
+            return redirect('kostenpruefung_mietobjekte_app:rechnungen')
     else:
         form = RechnungForm()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnung_form.html', {'form': form})
@@ -225,7 +225,7 @@ def prozent_bulk_update(request, rechnung_id):
                 instance.save()
             formset.save_m2m()
             print("Saved successfully, redirecting.")
-            return redirect('rechnungen')
+            return redirect('kostenpruefung_mietobjekte_app:rechnungen')
         else:
             print("Formset errors:", formset.errors)  # Debug: print errors
     else:
@@ -252,7 +252,7 @@ def rechnungsart_create(request):
             rechnungsart = form.save(commit=False)
             rechnungsart.created_by = request.user
             rechnungsart.save()
-            return redirect('kostenarten')
+            return redirect('kostenpruefung_mietobjekte_app:kostenarten')
     else:
         form = RechnungsartForm()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnungsart_form.html', {'form': form})
@@ -273,7 +273,7 @@ def lieferant_create(request):
             lieferant = form.save(commit=False)
             lieferant.created_by = request.user
             lieferant.save()
-            return redirect('lieferanten')
+            return redirect('kostenpruefung_mietobjekte_app:lieferanten')
     else:
         form = LieferantForm()
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant_form.html', {'form': form})
@@ -295,7 +295,7 @@ def konto_create(request):
             konto.created_by = request.user
             konto.save()
             form.save_m2m()
-            return redirect('konto')
+            return redirect('kostenpruefung_mietobjekte_app:konto')
     else:
         form = KontoForm()
     return render(request, 'kostenpruefung_mietobjekte_app/konto_form.html', {'form': form})
@@ -397,8 +397,10 @@ def auswertung(request):
     ausgaben_sum = 0
     chart_labels = []
     chart_values = []
+    chart_colors = []  # Initialize chart_colors
     einnahmen_labels = []
     einnahmen_values = []
+    einnahmen_colors = []  # Initialize einnahmen_colors
 
     if selected_objekt:
         # Date filter conditions
@@ -429,34 +431,36 @@ def auswertung(request):
         for rechnung in rechnungen:
             ausgaben_sum += rechnung.betrag
 
-        # Group Ausgaben by art/buchungsart with date filter
+        # Group Ausgaben by art/buchungsart with date filter and get colors
         ausgaben_by_art = (
             Rechnung.objects.filter(
                 mietobjekt=selected_objekt, 
                 created_by=request.user
             ).filter(rechnung_date_filter)
-            .values('art__name')  # Group by art name
-            .annotate(total=Sum('betrag'))  # Sum up betrag for each art
+            .values('art__name', 'art__farbe')  # Include color in the query
+            .annotate(total=Sum('betrag'))
         )
 
-        # Prepare data for the pie chart
+        # Prepare data for the pie chart with custom colors
         chart_labels = [item['art__name'] or "Ohne Kategorie" for item in ausgaben_by_art]
-        chart_values = [float(item['total']) for item in ausgaben_by_art]  # Convert Decimal to float
+        chart_values = [float(item['total']) for item in ausgaben_by_art]
+        chart_colors = [item['art__farbe'] or '#4e79a7' for item in ausgaben_by_art]  # Use custom colors
 
-        # Group Einnahmen by art/buchungsart with date filter
+        # Group Einnahmen by buchungsart with date filter and get colors
         einnahmen_by_art = (
             Konto.objects.filter(
                 mietobjekt=selected_objekt, 
                 betrag__gt=0, 
                 created_by=request.user
             ).filter(konto_date_filter)
-            .values('buchungsart__name')  # Group by buchungsart name
-            .annotate(total=Sum('betrag'))  # Sum up betrag for each buchungsart
+            .values('buchungsart__name', 'buchungsart__farbe')  # Include color
+            .annotate(total=Sum('betrag'))
         )
 
-        # Prepare data for the Einnahmen pie chart
+        # Prepare data for the Einnahmen pie chart with custom colors
         einnahmen_labels = [item['buchungsart__name'] or "Ohne Kategorie" for item in einnahmen_by_art]
-        einnahmen_values = [float(item['total']) for item in einnahmen_by_art]  # Convert Decimal to float
+        einnahmen_values = [float(item['total']) for item in einnahmen_by_art]
+        einnahmen_colors = [item['buchungsart__farbe'] or '#4e79a7' for item in einnahmen_by_art]
     
     ergebnis = einnahmen_sum - ausgaben_sum
 
@@ -468,14 +472,15 @@ def auswertung(request):
         'ergebnis': ergebnis,
         'chart_labels': chart_labels,
         'chart_values': chart_values,
+        'chart_colors': chart_colors,  # Add colors to template context
         'einnahmen_labels': einnahmen_labels,
         'einnahmen_values': einnahmen_values,
+        'einnahmen_colors': einnahmen_colors,  # Add colors to template context
         'time_filter': time_filter,
         'filter_display': filter_display,
         'start_date': start_date,
         'end_date': end_date,
         'month': request.GET.get('month', str(today.month)),
-        # Even safer approach with error handling
         'year': selected_year,
         'available_years': available_years,
     })
@@ -525,11 +530,11 @@ def mietverhaeltnis_create(request, mieter_id):
             # Redirect based on contract status
             today = timezone.now().date()
             if mietverhaeltnis.vertragsbeginn > today:
-                return redirect('mieter_zukuenftig')
+                return redirect('kostenpruefung_mietobjekte_app:mieter_zukuenftig')
             elif mietverhaeltnis.vertragsende < today:
-                return redirect('mieter_archiv')
+                return redirect('kostenpruefung_mietobjekte_app:mieter_archiv')
             else:
-                return redirect('mieter_laufend')
+                return redirect('kostenpruefung_mietobjekte_app:mieter_laufend')
     else:
         # Initial form display or after selecting Mietobjekt
         form = MietverhaeltnisForm(initial=initial_data, user=request.user)
@@ -557,7 +562,7 @@ class MietobjektUpdateView(UpdateView):
         return Mietobjekt.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('objekt_index')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:objekt_index')
 
 class MietobjektDeleteView(DeleteView):
     model = Mietobjekt
@@ -595,7 +600,7 @@ class MietobjektDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('objekt_index')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:objekt_index')
 
 
 # ─────────────────────────── MIETER UPDATE/DELETE ────────────────────────────
@@ -610,7 +615,7 @@ class MieterUpdateView(UpdateView):
         return Mieter.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('mieter_laufend')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:mieter_laufend')
 
 class MieterDeleteView(DeleteView):
     model = Mieter
@@ -643,7 +648,7 @@ class MieterDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('mieter_laufend')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:mieter_laufend')
 
 
 # ─────────────────────────── RECHNUNG UPDATE/DELETE ───────────────────────────
@@ -658,7 +663,7 @@ class RechnungUpdateView(UpdateView):
         return Rechnung.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('rechnungen')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:rechnungen')
 
 class RechnungDeleteView(DeleteView):
     model = Rechnung
@@ -691,7 +696,7 @@ class RechnungDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('rechnungen')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:rechnungen')
 
 
 # ─────────────────────────── RECHNUNGSART UPDATE/DELETE ───────────────────────
@@ -706,7 +711,7 @@ class RechnungsartUpdateView(UpdateView):
         return Rechnungsart.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('kostenarten')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:kostenarten')
 
 class RechnungsartDeleteView(DeleteView):
     model = Rechnungsart
@@ -739,7 +744,7 @@ class RechnungsartDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('kostenarten')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:kostenarten')
 
 
 # ─────────────────────────── LIEFERANT UPDATE/DELETE ──────────────────────────
@@ -754,7 +759,7 @@ class LieferantUpdateView(UpdateView):
         return Lieferant.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('lieferanten')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:lieferanten')
 
 class LieferantDeleteView(DeleteView):
     model = Lieferant
@@ -787,7 +792,7 @@ class LieferantDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('lieferanten')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:lieferanten')
 
 
 # ─────────────────────────── KONTO UPDATE/DELETE ──────────────────────────────
@@ -802,7 +807,7 @@ class KontoUpdateView(UpdateView):
         return Konto.objects.filter(created_by=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('konto')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:konto')
 
 class KontoDeleteView(DeleteView):
     model = Konto
@@ -835,4 +840,4 @@ class KontoDeleteView(DeleteView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('konto')
+        return reverse_lazy('kostenpruefung_mietobjekte_app:konto')

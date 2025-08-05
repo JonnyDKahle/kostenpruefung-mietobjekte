@@ -102,6 +102,11 @@ class Prozent(models.Model):
 class Rechnungsart(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungsarten_created", null=True, blank=True)
     name = models.CharField(max_length=255)
+    farbe = models.CharField(
+        max_length=7, 
+        default='#4e79a7',
+        help_text='Farbe für Diagramme (Hex-Code, z.B. #FF5733)'
+    )
 
     def __str__(self):
         return self.name
