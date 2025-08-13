@@ -9,6 +9,8 @@ from django.forms import modelformset_factory
 from django.utils import timezone
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ██████████████████████████ LOCAL IMPORTS ████████████████████████████████████
@@ -23,10 +25,12 @@ from .forms import MieterObjektForm, MietverhaeltnisForm, PasswordConfirmationFo
 # ███████████████████████ MIETOBJEKT VIEWS ████████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def objekt_index(request):
     objekte = Mietobjekt.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/objekt_index.html', {'objekte': objekte})
 
+@login_required
 def mietobjekt_create(request):
     if request.method == 'POST':
         form = MietobjektForm(request.POST)
@@ -39,6 +43,7 @@ def mietobjekt_create(request):
         form = MietobjektForm()
     return render(request, 'kostenpruefung_mietobjekte_app/mietobjekt_form.html', {'form': form})
 
+@login_required
 def mieteinheit_create(request, mietobjekt_id):
     mietobjekt = Mietobjekt.objects.filter(id=mietobjekt_id, created_by=request.user).first()
     if not mietobjekt:
@@ -59,10 +64,12 @@ def mieteinheit_create(request, mietobjekt_id):
 # ████████████████████████████ MIETER VIEWS ███████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def mieter(request):
     mieter = Mieter.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/mieter.html', {'mieter': mieter})
 
+@login_required
 def mieter_laufend(request):
     today = timezone.now().date()
     
@@ -93,6 +100,7 @@ def mieter_laufend(request):
         'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
     })
 
+@login_required
 def mieter_zukuenftig(request):
     today = timezone.now().date()
     
@@ -122,6 +130,7 @@ def mieter_zukuenftig(request):
         'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
     })
 
+@login_required
 def mieter_archiv(request):
     today = timezone.now().date()
     
@@ -151,6 +160,7 @@ def mieter_archiv(request):
         'mieter_without_mietverhaeltnis': mieter_without_mietverhaeltnis
     })
 
+@login_required
 def mieter_create_step1(request):
     if request.method == 'POST':
         form = MieterObjektForm(request.POST)
@@ -170,6 +180,7 @@ def mieter_create_step1(request):
 # ███████████████████████ RECHNUNG VIEWS ██████████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def rechnungen(request):
     rechnungen = Rechnung.objects.filter(created_by=request.user).prefetch_related(
         'lieferant',
@@ -188,6 +199,7 @@ def rechnungen(request):
         'rechnungen': rechnungen,
     })
 
+@login_required
 def rechnung_create(request):
     if request.method == 'POST':
         form = RechnungForm(request.POST)
@@ -201,6 +213,7 @@ def rechnung_create(request):
         form = RechnungForm()
     return render(request, 'kostenpruefung_mietobjekte_app/rechnung_form.html', {'form': form})
 
+@login_required
 def prozent_bulk_update(request, rechnung_id):
     rechnung = Rechnung.objects.filter(id=rechnung_id, created_by=request.user).first()
     if not rechnung:
@@ -241,10 +254,12 @@ def prozent_bulk_update(request, rechnung_id):
 # ██████████████████████ RECHNUNGSART VIEWS ███████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def kostenarten(request):
     kostenarten = Rechnungsart.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/kostenarten.html', {'kostenarten': kostenarten})
 
+@login_required
 def rechnungsart_create(request):
     if request.method == 'POST':
         form = RechnungsartForm(request.POST)
@@ -262,10 +277,12 @@ def rechnungsart_create(request):
 # ███████████████████████ LIEFERANT VIEWS ██████████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def lieferanten(request):
     lieferanten = Lieferant.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/lieferant.html', {'lieferanten': lieferanten})
 
+@login_required
 def lieferant_create(request):
     if request.method == 'POST':
         form = LieferantForm(request.POST)
@@ -283,10 +300,12 @@ def lieferant_create(request):
 # ████████████████████████ KONTO VIEWS █████████████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def konto(request):
     konten = Konto.objects.filter(created_by=request.user)
     return render(request, 'kostenpruefung_mietobjekte_app/konto.html', {'konten': konten})
 
+@login_required
 def konto_create(request):
     if request.method == 'POST':
         form = KontoForm(request.POST)
@@ -305,6 +324,7 @@ def konto_create(request):
 # ██████████████████████ AUSWERTUNG VIEWS ██████████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def auswertung(request):
     import datetime
     from django.db.models import Q
@@ -490,6 +510,7 @@ def auswertung(request):
 # ████████████████████ MIETVERHAELTNIS VIEWS ███████████████████████████████████
 # ═══════════════════════════════════════════════════════════════════════════════
 
+@login_required
 def mietverhaeltnis_create(request, mieter_id):
     mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
     if not mieter:
@@ -552,7 +573,7 @@ def mietverhaeltnis_create(request, mieter_id):
 
 # ─────────────────────────── MIETOBJEKT UPDATE/DELETE ────────────────────────
 
-class MietobjektUpdateView(UpdateView):
+class MietobjektUpdateView(LoginRequiredMixin, UpdateView):
     model = Mietobjekt
     form_class = MietobjektForm
     template_name = 'kostenpruefung_mietobjekte_app/mietobjekt_form.html'
@@ -564,7 +585,7 @@ class MietobjektUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:objekt_index')
 
-class MietobjektDeleteView(DeleteView):
+class MietobjektDeleteView(LoginRequiredMixin, DeleteView):
     model = Mietobjekt
     template_name = 'kostenpruefung_mietobjekte_app/mietobjekt_confirm_delete.html'
 
@@ -605,8 +626,7 @@ class MietobjektDeleteView(DeleteView):
 
 # ─────────────────────────── MIETER UPDATE/DELETE ────────────────────────────
 
-# Mieter Update/Delete Views
-class MieterUpdateView(UpdateView):
+class MieterUpdateView(LoginRequiredMixin, UpdateView):
     model = Mieter
     form_class = MieterObjektForm
     template_name = 'kostenpruefung_mietobjekte_app/mieter_form.html'
@@ -617,7 +637,7 @@ class MieterUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:mieter_laufend')
 
-class MieterDeleteView(DeleteView):
+class MieterDeleteView(LoginRequiredMixin, DeleteView):
     model = Mieter
     template_name = 'kostenpruefung_mietobjekte_app/mieter_confirm_delete.html'
 
@@ -653,8 +673,7 @@ class MieterDeleteView(DeleteView):
 
 # ─────────────────────────── RECHNUNG UPDATE/DELETE ───────────────────────────
 
-# Rechnung Update/Delete Views
-class RechnungUpdateView(UpdateView):
+class RechnungUpdateView(LoginRequiredMixin, UpdateView):
     model = Rechnung
     form_class = RechnungForm
     template_name = 'kostenpruefung_mietobjekte_app/rechnung_form.html'
@@ -665,7 +684,7 @@ class RechnungUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:rechnungen')
 
-class RechnungDeleteView(DeleteView):
+class RechnungDeleteView(LoginRequiredMixin, DeleteView):
     model = Rechnung
     template_name = 'kostenpruefung_mietobjekte_app/rechnung_confirm_delete.html'
 
@@ -699,10 +718,9 @@ class RechnungDeleteView(DeleteView):
         return reverse_lazy('kostenpruefung_mietobjekte_app:rechnungen')
 
 
-# ─────────────────────────── RECHNUNGSART UPDATE/DELETE ───────────────────────
+# ─────────────────────────── RECHNUNGSART (Kostenarten) UPDATE/DELETE ───────────────────────
 
-# Rechnungsart (Kostenarten) Update/Delete Views
-class RechnungsartUpdateView(UpdateView):
+class RechnungsartUpdateView(LoginRequiredMixin, UpdateView):
     model = Rechnungsart
     form_class = RechnungsartForm
     template_name = 'kostenpruefung_mietobjekte_app/rechnungsart_form.html'
@@ -713,7 +731,7 @@ class RechnungsartUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:kostenarten')
 
-class RechnungsartDeleteView(DeleteView):
+class RechnungsartDeleteView(LoginRequiredMixin, DeleteView):
     model = Rechnungsart
     template_name = 'kostenpruefung_mietobjekte_app/rechnungsart_confirm_delete.html'
 
@@ -749,8 +767,7 @@ class RechnungsartDeleteView(DeleteView):
 
 # ─────────────────────────── LIEFERANT UPDATE/DELETE ──────────────────────────
 
-# Lieferant Update/Delete Views
-class LieferantUpdateView(UpdateView):
+class LieferantUpdateView(LoginRequiredMixin, UpdateView):
     model = Lieferant
     form_class = LieferantForm
     template_name = 'kostenpruefung_mietobjekte_app/lieferant_form.html'
@@ -761,7 +778,7 @@ class LieferantUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:lieferanten')
 
-class LieferantDeleteView(DeleteView):
+class LieferantDeleteView(LoginRequiredMixin, DeleteView):
     model = Lieferant
     template_name = 'kostenpruefung_mietobjekte_app/lieferant_confirm_delete.html'
 
@@ -797,8 +814,7 @@ class LieferantDeleteView(DeleteView):
 
 # ─────────────────────────── KONTO UPDATE/DELETE ──────────────────────────────
 
-# Konto Update/Delete Views
-class KontoUpdateView(UpdateView):
+class KontoUpdateView(LoginRequiredMixin, UpdateView):
     model = Konto
     form_class = KontoForm
     template_name = 'kostenpruefung_mietobjekte_app/konto_form.html'
@@ -809,7 +825,7 @@ class KontoUpdateView(UpdateView):
     def get_success_url(self):
         return reverse_lazy('kostenpruefung_mietobjekte_app:konto')
 
-class KontoDeleteView(DeleteView):
+class KontoDeleteView(LoginRequiredMixin, DeleteView):
     model = Konto
     template_name = 'kostenpruefung_mietobjekte_app/konto_confirm_delete.html'
 
