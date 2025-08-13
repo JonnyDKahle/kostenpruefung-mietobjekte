@@ -40,36 +40,26 @@
     <div class="main-content">
         <h2>Mietverhältnis für {{ mieter.vorname }} {{ mieter.nachname }} anlegen</h2>
         
-        <!-- Address Update Form -->
-        <div class="address-update-form">
-            <h3>Adressdaten übernehmen</h3>
-            <p>Wählen Sie ein Mietobjekt aus, um die Adressdaten automatisch zu übernehmen:</p>
-            
-            <form method="get" action="">
-                <div class="form-row">
-                    <label for="id_mietobjekt">Mietobjekt:</label>
-                    {{ form.mietobjekt }}
-                </div>
-                <button type="submit" class="action-btn">Adressdaten übernehmen</button>
-            </form>
-            
-            {% if selected_mietobjekt %}
-            <p class="help-text">
-                Die Adressdaten von "{{ selected_mietobjekt.name }}" wurden übernommen.
-            </p>
-            {% endif %}
-        </div>
-        
         <!-- Main Form -->
         <form method="post">
             {% csrf_token %}
+            
+            <!-- Display form errors -->
+            {% if form.errors %}
+                <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px;">
+                    <h4>Formfehler:</h4>
+                    {% for field, errors in form.errors.items %}
+                        <p><strong>{{ field }}:</strong> {{ errors|join:", " }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
             
             <div class="field-group">
                 <h3>1. Objekt und Mieteinheiten</h3>
                 <div class="form-row">
                     <label for="{{ form.mietobjekt.id_for_label }}">Mietobjekt:</label>
                     {{ form.mietobjekt }}
-                    <p class="help-text">Wählen Sie das Mietobjekt aus. Die Mieteinheiten werden entsprechend gefiltert.</p>
+                    <p class="help-text">Wählen Sie das Mietobjekt aus. Die Mieteinheiten und Adressdaten werden automatisch übernommen.</p>
                 </div>
                 <div class="form-row">
                     <label for="{{ form.mieteinheiten.id_for_label }}">Mieteinheiten:</label>
@@ -123,7 +113,6 @@
                 </div>
             </div>
             
-            <input type="hidden" name="mietobjekt" value="{{ form.mietobjekt.value|default:'' }}">
             <button type="submit" class="action-btn">Speichern</button>
         </form>
     </div>
@@ -133,6 +122,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mietobjektSelect = document.getElementById('id_mietobjekt');
     const mieteinheitenSelect = document.getElementById('id_mieteinheiten');
+    
+    // Address fields
+    const strasseField = document.getElementById('id_strasse_hausnummer');
+    const plzField = document.getElementById('id_plz');
+    const ortField = document.getElementById('id_ort');
+    const landField = document.getElementById('id_land');
     
     // Get CSRF token
     function getCookie(name) {
@@ -168,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Received data:', data); // Debug log
+                    console.log('Received mieteinheiten data:', data); // Debug log
                     data.mieteinheiten.forEach(function(einheit) {
                         const option = document.createElement('option');
                         option.value = einheit.id;
@@ -182,16 +177,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Update mieteinheiten when mietobjekt changes
+    function updateAddressFields() {
+        const selectedObjektId = mietobjektSelect.value;
+        
+        if (selectedObjektId) {
+            // Make AJAX request to get address data
+            fetch(`{% url 'kostenpruefung_mietobjekte_app:get_mietobjekt_address' %}?mietobjekt_id=${selectedObjektId}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received address data:', data); // Debug log
+                    if (data.success) {
+                        // Update address fields
+                        strasseField.value = data.address.strasse_hausnummer || '';
+                        plzField.value = data.address.plz || '';
+                        ortField.value = data.address.ort || '';
+                        landField.value = data.address.land || '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching address data:', error);
+                });
+        } else {
+            // Clear address fields when no mietobjekt is selected
+            strasseField.value = '';
+            plzField.value = '';
+            ortField.value = '';
+            landField.value = '';
+        }
+    }
+    
+    // Update both mieteinheiten and address when mietobjekt changes
     mietobjektSelect.addEventListener('change', function() {
         console.log('Mietobjekt changed to:', mietobjektSelect.value); // Debug log
         updateMieteinheiten();
+        updateAddressFields();
     });
     
     // Initial update if a mietobjekt is already selected
     if (mietobjektSelect.value) {
         console.log('Initial mietobjekt value:', mietobjektSelect.value); // Debug log
         updateMieteinheiten();
+        updateAddressFields();
     }
 });
 </script>

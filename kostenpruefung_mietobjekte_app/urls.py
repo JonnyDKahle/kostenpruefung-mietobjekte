@@ -8,7 +8,7 @@ from django.urls import path
 from .views import (objekt_index, mieter, rechnungen, kostenarten, lieferanten, konto, auswertung, 
                     mieter_laufend, mieter_zukuenftig, mieter_archiv)
 from .views import mietobjekt_create, rechnung_create, rechnungsart_create, lieferant_create, konto_create
-from .views import mieteinheit_create, prozent_bulk_update, mieter_create_step1, mietverhaeltnis_create, get_mieteinheiten
+from .views import mieteinheit_create, prozent_bulk_update, mieter_create_step1, mietverhaeltnis_create, get_mieteinheiten, get_mietobjekt_address
 
 # Class-based views imports
 from .views import MietobjektUpdateView, MietobjektDeleteView
@@ -48,6 +48,7 @@ urlpatterns = [
     # ─────────────────────────── MIETVERHAELTNIS URLS ────────────────────
     path('mieter/<int:mieter_id>/mietverhaeltnis/create/', mietverhaeltnis_create, name='mietverhaeltnis_create'),
     path('ajax/get_mieteinheiten/', get_mieteinheiten, name='get_mieteinheiten'),
+    path('ajax/get_mietobjekt_address/', get_mietobjekt_address, name='get_mietobjekt_address'),
     
     # ─────────────────────────── RECHNUNG URLS ───────────────────────────
     path('rechnungen/', rechnungen, name='rechnungen'),

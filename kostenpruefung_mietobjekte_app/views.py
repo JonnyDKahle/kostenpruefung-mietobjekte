@@ -543,6 +543,30 @@ def get_mieteinheiten(request):
         return JsonResponse({'mieteinheiten': []})
 
 @login_required
+def get_mietobjekt_address(request):
+    """AJAX endpoint to get address data for a specific Mietobjekt"""
+    from django.http import JsonResponse
+    
+    mietobjekt_id = request.GET.get('mietobjekt_id')
+    if not mietobjekt_id:
+        return JsonResponse({'success': False, 'message': 'No mietobjekt_id provided'})
+    
+    try:
+        mietobjekt = Mietobjekt.objects.get(id=mietobjekt_id, created_by=request.user)
+        
+        return JsonResponse({
+            'success': True,
+            'address': {
+                'strasse_hausnummer': mietobjekt.strasse_hausnummer,
+                'plz': mietobjekt.plz,
+                'ort': mietobjekt.ort,
+                'land': mietobjekt.land,
+            }
+        })
+    except Mietobjekt.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Mietobjekt not found'})
+
+@login_required
 def mietverhaeltnis_create(request, mieter_id):
     mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
     if not mieter:
@@ -592,6 +616,10 @@ def mietverhaeltnis_create(request, mieter_id):
                 return redirect('kostenpruefung_mietobjekte_app:mieter_archiv')
             else:
                 return redirect('kostenpruefung_mietobjekte_app:mieter_laufend')
+        else:
+            # Debug form errors
+            print("Form errors:", form.errors)
+            print("Form data:", request.POST)
     else:
         # Initial form display or after selecting Mietobjekt
         form = MietverhaeltnisForm(initial=initial_data, user=request.user)

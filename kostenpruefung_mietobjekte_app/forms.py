@@ -90,7 +90,7 @@ class MietverhaeltnisForm(forms.ModelForm):
     
     class Meta:
         model = Mietverhaeltnis
-        fields = ['mietobjekt', 'mieteinheiten', 'vertragsbeginn', 
+        fields = ['mieteinheiten', 'vertragsbeginn', 
                   'vertragsende', 'kaltmiete', 'nebenkosten', 'kaution',
                   'strasse_hausnummer', 'plz', 'ort', 'land']
         widgets = {
