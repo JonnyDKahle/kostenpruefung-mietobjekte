@@ -55,9 +55,9 @@
                 <td>{{ m.land }}</td>
                 <td>{{ m.telefon }}</td>
                 <td>{{ m.e_mail }}</td>
-                <td>{{ m.geburtsdatum }}</td>
-                <td>{{ m.vertragsbeginn }}</td>
-                <td>{{ m.vertragsende }}</td>
+                <td>{{ m.geburtsdatum|date:"d.m.Y" }}</td>
+                <td>{{ m.vertragsbeginn|date:"d.m.Y" }}</td>
+                <td>{{ m.vertragsende|date:"d.m.Y" }}</td>
                 <td>{{ m.kaltmiete }}</td>
                 <td>{{ m.nebenkosten }}</td>
                 <td>{{ m.kaution }}</td>

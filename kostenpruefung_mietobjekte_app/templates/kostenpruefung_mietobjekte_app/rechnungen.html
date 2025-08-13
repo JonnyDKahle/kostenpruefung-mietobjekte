@@ -40,7 +40,7 @@
             </tr>
             {% for r in rechnungen %}
             <tr>
-                <td>{{ r.datum }}</td>
+                <td>{{ r.datum|date:"d.m.Y" }}</td>
                 <td>{{ r.rechnungsnummer }}</td>
                 <td>{{ r.name }}</td>
                 <td>{{ r.betrag }}</td>
@@ -50,7 +50,7 @@
                         {{ l.firmenname }}{% if not forloop.last %},<br>{% endif %}
                     {% endfor %}
                 </td>
-                <td>{{ r.bezahlt_am }}</td>
+                <td>{{ r.bezahlt_am|date:"d.m.Y" }}</td>
                 <td>{{ r.mietobjekt.name }}</td>
                 <td {% if r.percent_not_100 %}style="background-color:#ffe5e5;"{% endif %}>
                     {% for mieteinheit in r.mietobjekt.mieteinheiten.all %}

@@ -82,7 +82,7 @@
                 <td>{{ m.nachname }}</td>
                 <td>{{ m.telefon }}</td>
                 <td>{{ m.e_mail }}</td>
-                <td>{{ m.geburtsdatum }}</td>
+                <td>{{ m.geburtsdatum|date:"d.m.Y" }}</td>
                 <td colspan="11" style="text-align: center;">
                     <form action="{% url 'kostenpruefung_mietobjekte_app:mietverhaeltnis_create' m.id %}" method="get">
                         <button class="action-btn" type="submit">Neues Mietverhältnis anlegen</button>
@@ -108,8 +108,8 @@
                 <td>{{ mv.plz }}</td>
                 <td>{{ mv.ort }}</td>
                 <td>{{ mv.land }}</td>
-                <td>{{ mv.vertragsbeginn }}</td>
-                <td>{{ mv.vertragsende }}</td>
+                <td>{{ mv.vertragsbeginn|date:"d.m.Y" }}</td>
+                <td>{{ mv.vertragsende|date:"d.m.Y" }}</td>
                 <td>{{ mv.kaltmiete }}</td>
                 <td>{{ mv.nebenkosten }}</td>
                 <td>{{ mv.kaution }}</td>

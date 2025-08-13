@@ -35,11 +35,11 @@
             </tr>
             {% for k in konten %}
             <tr>
-                <td>{{ k.buchungstag }}</td>
+                <td>{{ k.buchungstag|date:"d.m.Y" }}</td>
                 <td>{{ k.kontoinhaber }}</td>
                 <td>{{ k.betrag }}</td>
                 <td>{{ k.buchungstext }}</td>
-                <td>{{ k.werterstellung }}</td>
+                <td>{{ k.werterstellung|date:"d.m.Y" }}</td>
                 <td>{{ k.buchungsart }}</td>
                 <td>
                     {% for m in k.mieter.all %}

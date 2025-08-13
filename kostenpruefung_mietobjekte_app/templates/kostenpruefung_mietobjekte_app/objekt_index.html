@@ -51,7 +51,7 @@
                 <td>{{ o.plz }}</td>
                 <td>{{ o.ort }}</td>
                 <td>{{ o.land }}</td>
-                <td>{{ o.earliest_kaufdatum|default:"—" }}</td>
+                <td>{{ o.earliest_kaufdatum|date:"d.m.Y"|default:"—" }}</td>
                 <td>{{ o.total_kaufpreis|default:"0"|floatformat:2 }} €</td>
                 <td>{{ o.total_darlehen|default:"0"|floatformat:2 }} €</td>
                 <td>{{ o.total_grundschuld|default:"0"|floatformat:2 }} €</td>
@@ -59,7 +59,7 @@
                     {% for einheit in o.mieteinheiten.all %}
                         <div class="mieteinheit-info">
                             <strong>{{ einheit.name }}</strong><br>
-                            {% if einheit.kaufdatum %}Kaufdatum: {{ einheit.kaufdatum }}<br>{% endif %}
+                            {% if einheit.kaufdatum %}Kaufdatum: {{ einheit.kaufdatum|date:"d.m.Y" }}<br>{% endif %}
                             {% if einheit.kaufpreis %}Kaufpreis: {{ einheit.kaufpreis }} €<br>{% endif %}
                             {% if einheit.darlehen %}Darlehen: {{ einheit.darlehen }} €<br>{% endif %}
                             {% if einheit.grundschuld %}Grundschuld: {{ einheit.grundschuld }} €<br>{% endif %}
