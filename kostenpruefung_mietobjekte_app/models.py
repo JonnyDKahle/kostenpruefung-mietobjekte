@@ -12,10 +12,6 @@ class Mietobjekt(models.Model):
     ort = models.CharField(max_length=100)
     land = models.CharField(max_length=100)
 
-    kaufdatum = models.DateField()
-    kaufpreis = models.DecimalField(max_digits=10, decimal_places=2)
-    darlehen = models.DecimalField(max_digits=10, decimal_places=2)
-    grundschuld = models.DecimalField(max_digits=10, decimal_places=2)
     FARBE_CHOICES = [
         ('rot', 'Rot'),
         ('blau', 'Blau'),
@@ -31,6 +27,10 @@ class Mietobjekt(models.Model):
 class Mieteinheit(models.Model):
     mietobjekt = models.ForeignKey(Mietobjekt, on_delete=models.CASCADE, related_name="mieteinheiten")
     name = models.CharField(max_length=255)
+    kaufdatum = models.DateField(null=True, blank=True)
+    kaufpreis = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    darlehen = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    grundschuld = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.mietobjekt.name})"

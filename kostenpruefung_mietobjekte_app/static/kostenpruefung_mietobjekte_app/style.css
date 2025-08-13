@@ -364,3 +364,21 @@ body { margin: 0; font-family: Arial, sans-serif; }
         width: 100%;
     }
 }
+
+/* Mieteinheit info styling */
+.mieteinheit-info {
+    padding: 8px 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.mieteinheit-info strong {
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.mieteinheit-info hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 8px 0;
+}
