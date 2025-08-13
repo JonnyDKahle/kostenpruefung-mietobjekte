@@ -28,6 +28,20 @@ from .forms import MieterObjektForm, MietverhaeltnisForm, PasswordConfirmationFo
 @login_required
 def objekt_index(request):
     objekte = Mietobjekt.objects.filter(created_by=request.user)
+    
+    # Add aggregated financial data for each Mietobjekt
+    for objekt in objekte:
+        mieteinheiten = objekt.mieteinheiten.all()
+        
+        # Calculate totals
+        objekt.total_kaufpreis = sum(einheit.kaufpreis or 0 for einheit in mieteinheiten)
+        objekt.total_darlehen = sum(einheit.darlehen or 0 for einheit in mieteinheiten)
+        objekt.total_grundschuld = sum(einheit.grundschuld or 0 for einheit in mieteinheiten)
+        
+        # Get earliest kaufdatum
+        kaufdaten = [einheit.kaufdatum for einheit in mieteinheiten if einheit.kaufdatum]
+        objekt.earliest_kaufdatum = min(kaufdaten) if kaufdaten else None
+    
     return render(request, 'kostenpruefung_mietobjekte_app/objekt_index.html', {'objekte': objekte})
 
 @login_required
