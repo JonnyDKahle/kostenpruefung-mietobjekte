@@ -87,7 +87,7 @@ def mieter(request):
 def mieter_laufend(request):
     today = timezone.now().date()
     
-    # Get tenants with at least one current contract
+    # Get tenants with at least one current contract, but show ALL their contracts
     mieter_with_current = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsbeginn__lte=today,
@@ -95,10 +95,7 @@ def mieter_laufend(request):
     ).distinct().prefetch_related(
         Prefetch(
             'mietverhaeltnisse',
-            queryset=Mietverhaeltnis.objects.filter(
-                vertragsbeginn__lte=today,
-                vertragsende__gte=today
-            ).prefetch_related('mietobjekte', 'mieteinheiten')
+            queryset=Mietverhaeltnis.objects.all().prefetch_related('mietobjekte', 'mieteinheiten')
         )
     )
     
@@ -118,17 +115,14 @@ def mieter_laufend(request):
 def mieter_zukuenftig(request):
     today = timezone.now().date()
     
-    # Get tenants with at least one future contract
+    # Get tenants with at least one future contract, but show ALL their contracts
     mieter_with_future = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsbeginn__gt=today
     ).distinct().prefetch_related(
-        # Only prefetch FUTURE lease contracts
         Prefetch(
             'mietverhaeltnisse',
-            queryset=Mietverhaeltnis.objects.filter(
-                vertragsbeginn__gt=today
-            ).prefetch_related('mietobjekte', 'mieteinheiten')
+            queryset=Mietverhaeltnis.objects.all().prefetch_related('mietobjekte', 'mieteinheiten')
         )
     )
     
@@ -148,17 +142,14 @@ def mieter_zukuenftig(request):
 def mieter_archiv(request):
     today = timezone.now().date()
     
-    # Get tenants with at least one past contract
+    # Get tenants with at least one past contract, but show ALL their contracts
     mieter_with_past = Mieter.objects.filter(
         created_by=request.user,
         mietverhaeltnisse__vertragsende__lt=today
     ).distinct().prefetch_related(
-        # Only prefetch PAST lease contracts
         Prefetch(
             'mietverhaeltnisse',
-            queryset=Mietverhaeltnis.objects.filter(
-                vertragsende__lt=today
-            ).prefetch_related('mietobjekte', 'mieteinheiten')
+            queryset=Mietverhaeltnis.objects.all().prefetch_related('mietobjekte', 'mieteinheiten')
         )
     )
     
