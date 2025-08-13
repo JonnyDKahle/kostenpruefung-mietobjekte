@@ -47,8 +47,8 @@
             
             <form method="get" action="">
                 <div class="form-row">
-                    <label for="id_primary_mietobjekt">Mietobjekt:</label>
-                    {{ form.primary_mietobjekt }}
+                    <label for="id_mietobjekt">Mietobjekt:</label>
+                    {{ form.mietobjekt }}
                 </div>
                 <button type="submit" class="action-btn">Adressdaten übernehmen</button>
             </form>
@@ -67,12 +67,14 @@
             <div class="field-group">
                 <h3>1. Objekt und Mieteinheiten</h3>
                 <div class="form-row">
-                    <label for="{{ form.mietobjekte.id_for_label }}">Mietobjekt(e):</label>
-                    {{ form.mietobjekte }}
+                    <label for="{{ form.mietobjekt.id_for_label }}">Mietobjekt:</label>
+                    {{ form.mietobjekt }}
+                    <p class="help-text">Wählen Sie das Mietobjekt aus. Die Mieteinheiten werden entsprechend gefiltert.</p>
                 </div>
                 <div class="form-row">
                     <label for="{{ form.mieteinheiten.id_for_label }}">Mieteinheiten:</label>
                     {{ form.mieteinheiten }}
+                    <p class="help-text">Wählen Sie die Mieteinheiten aus dem ausgewählten Mietobjekt aus.</p>
                 </div>
             </div>
             
@@ -103,8 +105,9 @@
                     {{ form.vertragsbeginn }}
                 </div>
                 <div class="form-row">
-                    <label for="{{ form.vertragsende.id_for_label }}">Vertragsende:</label>
+                    <label for="{{ form.vertragsende.id_for_label }}">Vertragsende (optional):</label>
                     {{ form.vertragsende }}
+                    <p class="help-text">Lassen Sie dieses Feld leer für unbefristete Verträge.</p>
                 </div>
                 <div class="form-row">
                     <label for="{{ form.kaltmiete.id_for_label }}">Kaltmiete:</label>
@@ -120,10 +123,78 @@
                 </div>
             </div>
             
-            <input type="hidden" name="primary_mietobjekt" value="{{ form.primary_mietobjekt.value|default:'' }}">
+            <input type="hidden" name="mietobjekt" value="{{ form.mietobjekt.value|default:'' }}">
             <button type="submit" class="action-btn">Speichern</button>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mietobjektSelect = document.getElementById('id_mietobjekt');
+    const mieteinheitenSelect = document.getElementById('id_mieteinheiten');
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    
+    function updateMieteinheiten() {
+        const selectedObjektId = mietobjektSelect.value;
+        
+        // Clear current options
+        mieteinheitenSelect.innerHTML = '<option value="">---------</option>';
+        
+        if (selectedObjektId) {
+            // Make AJAX request to get mieteinheiten
+            fetch(`{% url 'kostenpruefung_mietobjekte_app:get_mieteinheiten' %}?mietobjekt_id=${selectedObjektId}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data); // Debug log
+                    data.mieteinheiten.forEach(function(einheit) {
+                        const option = document.createElement('option');
+                        option.value = einheit.id;
+                        option.textContent = einheit.name;
+                        mieteinheitenSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching mieteinheiten:', error);
+                });
+        }
+    }
+    
+    // Update mieteinheiten when mietobjekt changes
+    mietobjektSelect.addEventListener('change', function() {
+        console.log('Mietobjekt changed to:', mietobjektSelect.value); // Debug log
+        updateMieteinheiten();
+    });
+    
+    // Initial update if a mietobjekt is already selected
+    if (mietobjektSelect.value) {
+        console.log('Initial mietobjekt value:', mietobjektSelect.value); // Debug log
+        updateMieteinheiten();
+    }
+});
+</script>
+
 </body>
 </html>

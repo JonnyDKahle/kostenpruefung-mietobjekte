@@ -109,7 +109,7 @@
                 <td>{{ mv.ort }}</td>
                 <td>{{ mv.land }}</td>
                 <td>{{ mv.vertragsbeginn|date:"d.m.Y" }}</td>
-                <td>{{ mv.vertragsende|date:"d.m.Y" }}</td>
+                <td>{{ mv.vertragsende|date:"d.m.Y"|default:"unbefristet" }}</td>
                 <td>{{ mv.kaltmiete }}</td>
                 <td>{{ mv.nebenkosten }}</td>
                 <td>{{ mv.kaution }}</td>

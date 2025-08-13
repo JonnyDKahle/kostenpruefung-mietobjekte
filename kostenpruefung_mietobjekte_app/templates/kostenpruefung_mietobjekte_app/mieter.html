@@ -57,7 +57,7 @@
                 <td>{{ m.e_mail }}</td>
                 <td>{{ m.geburtsdatum|date:"d.m.Y" }}</td>
                 <td>{{ m.vertragsbeginn|date:"d.m.Y" }}</td>
-                <td>{{ m.vertragsende|date:"d.m.Y" }}</td>
+                <td>{{ m.vertragsende|date:"d.m.Y"|default:"unbefristet" }}</td>
                 <td>{{ m.kaltmiete }}</td>
                 <td>{{ m.nebenkosten }}</td>
                 <td>{{ m.kaution }}</td>

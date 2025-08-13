@@ -4,7 +4,7 @@
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from django.db.models import Prefetch, Sum
+from django.db.models import Prefetch, Sum, Q
 from django.forms import modelformset_factory
 from django.utils import timezone
 from django.views.generic.edit import UpdateView, DeleteView
@@ -88,10 +88,13 @@ def mieter_laufend(request):
     today = timezone.now().date()
     
     # Get tenants with at least one current contract, but show ALL their contracts
+    # Include contracts where vertragsende is null (unlimited) or in the future
     mieter_with_current = Mieter.objects.filter(
         created_by=request.user,
-        mietverhaeltnisse__vertragsbeginn__lte=today,
-        mietverhaeltnisse__vertragsende__gte=today
+        mietverhaeltnisse__vertragsbeginn__lte=today
+    ).filter(
+        Q(mietverhaeltnisse__vertragsende__gte=today) | 
+        Q(mietverhaeltnisse__vertragsende__isnull=True)
     ).distinct().prefetch_related(
         Prefetch(
             'mietverhaeltnisse',
@@ -142,9 +145,10 @@ def mieter_zukuenftig(request):
 def mieter_archiv(request):
     today = timezone.now().date()
     
-    # Get tenants with at least one past contract, but show ALL their contracts
+    # Get tenants with at least one past contract (where vertragsende exists and is in the past)
     mieter_with_past = Mieter.objects.filter(
         created_by=request.user,
+        mietverhaeltnisse__vertragsende__isnull=False,
         mietverhaeltnisse__vertragsende__lt=today
     ).distinct().prefetch_related(
         Prefetch(
@@ -516,6 +520,29 @@ def auswertung(request):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @login_required
+def get_mieteinheiten(request):
+    """AJAX endpoint to get Mieteinheiten for a specific Mietobjekt"""
+    from django.http import JsonResponse
+    
+    mietobjekt_id = request.GET.get('mietobjekt_id')
+    if not mietobjekt_id:
+        return JsonResponse({'mieteinheiten': []})
+    
+    try:
+        mietobjekt = Mietobjekt.objects.get(id=mietobjekt_id, created_by=request.user)
+        mieteinheiten = mietobjekt.mieteinheiten.all()
+        
+        data = {
+            'mieteinheiten': [
+                {'id': einheit.id, 'name': einheit.name}
+                for einheit in mieteinheiten
+            ]
+        }
+        return JsonResponse(data)
+    except Mietobjekt.DoesNotExist:
+        return JsonResponse({'mieteinheiten': []})
+
+@login_required
 def mietverhaeltnis_create(request, mieter_id):
     mieter = Mieter.objects.filter(id=mieter_id, created_by=request.user).first()
     if not mieter:
@@ -525,8 +552,8 @@ def mietverhaeltnis_create(request, mieter_id):
     selected_mietobjekt = None
     
     # Check if we're updating the form with address from selected Mietobjekt
-    if request.method == 'GET' and 'primary_mietobjekt' in request.GET:
-        mietobjekt_id = request.GET.get('primary_mietobjekt')
+    if request.method == 'GET' and 'mietobjekt' in request.GET:
+        mietobjekt_id = request.GET.get('mietobjekt')
         if mietobjekt_id:
             selected_mietobjekt = Mietobjekt.objects.filter(
                 id=mietobjekt_id, created_by=request.user
@@ -538,9 +565,7 @@ def mietverhaeltnis_create(request, mieter_id):
                     'plz': selected_mietobjekt.plz,
                     'ort': selected_mietobjekt.ort,
                     'land': selected_mietobjekt.land,
-                    'primary_mietobjekt': selected_mietobjekt.id,
-                    # Pre-select this in the mietobjekte field too
-                    'mietobjekte': [selected_mietobjekt.id]
+                    'mietobjekt': selected_mietobjekt.id,
                 }
     
     if request.method == 'POST':
@@ -551,13 +576,19 @@ def mietverhaeltnis_create(request, mieter_id):
             mietverhaeltnis.mieter = mieter
             mietverhaeltnis.created_by = request.user
             mietverhaeltnis.save()
+            
+            # Set the single mietobjekt to the mietobjekte many-to-many field
+            mietobjekt = form.cleaned_data['mietobjekt']
+            mietverhaeltnis.mietobjekte.set([mietobjekt])
+            
+            # Save mieteinheiten
             form.save_m2m()
             
             # Redirect based on contract status
             today = timezone.now().date()
             if mietverhaeltnis.vertragsbeginn > today:
                 return redirect('kostenpruefung_mietobjekte_app:mieter_zukuenftig')
-            elif mietverhaeltnis.vertragsende < today:
+            elif mietverhaeltnis.vertragsende and mietverhaeltnis.vertragsende < today:
                 return redirect('kostenpruefung_mietobjekte_app:mieter_archiv')
             else:
                 return redirect('kostenpruefung_mietobjekte_app:mieter_laufend')

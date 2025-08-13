@@ -81,16 +81,16 @@ class KontoForm(forms.ModelForm):
         }
 
 class MietverhaeltnisForm(forms.ModelForm):
-    # Add a single-select field for selecting one Mietobjekt to get the address
-    primary_mietobjekt = forms.ModelChoiceField(
+    # Single field for selecting one Mietobjekt
+    mietobjekt = forms.ModelChoiceField(
         queryset=Mietobjekt.objects.all(),
-        label="Primäres Mietobjekt für Adressdaten",
-        required=False
+        label="Mietobjekt",
+        required=True
     )
     
     class Meta:
         model = Mietverhaeltnis
-        fields = ['primary_mietobjekt', 'mietobjekte', 'mieteinheiten', 'vertragsbeginn', 
+        fields = ['mietobjekt', 'mieteinheiten', 'vertragsbeginn', 
                   'vertragsende', 'kaltmiete', 'nebenkosten', 'kaution',
                   'strasse_hausnummer', 'plz', 'ort', 'land']
         widgets = {
@@ -101,9 +101,22 @@ class MietverhaeltnisForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if user:
-            self.fields['primary_mietobjekt'].queryset = Mietobjekt.objects.filter(created_by=user)
-            self.fields['mietobjekte'].queryset = Mietobjekt.objects.filter(created_by=user)
+            self.fields['mietobjekt'].queryset = Mietobjekt.objects.filter(created_by=user)
+            # Show all mieteinheiten initially - JavaScript will filter them
             self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt__created_by=user)
+            
+            # If we have a selected mietobjekt in GET/POST data, filter the mieteinheiten
+            if 'mietobjekt' in self.data:
+                try:
+                    mietobjekt_id = int(self.data.get('mietobjekt'))
+                    self.fields['mieteinheiten'].queryset = Mieteinheit.objects.filter(mietobjekt_id=mietobjekt_id)
+                except (ValueError, TypeError):
+                    pass
+            elif self.instance.pk and hasattr(self.instance, 'mietobjekte'):
+                # For editing existing instances, show mieteinheiten of the first mietobjekt
+                if self.instance.mietobjekte.exists():
+                    first_mietobjekt = self.instance.mietobjekte.first()
+                    self.fields['mieteinheiten'].queryset = first_mietobjekt.mieteinheiten.all()
         
 class PasswordConfirmationForm(forms.Form):
     password = forms.CharField(

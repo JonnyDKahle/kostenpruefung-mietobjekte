@@ -54,7 +54,7 @@ class Mietverhaeltnis(models.Model):
     ort = models.CharField(max_length=100)
     land = models.CharField(max_length=100)
     vertragsbeginn = models.DateField()
-    vertragsende = models.DateField()
+    vertragsende = models.DateField(null=True, blank=True)
     kaltmiete = models.DecimalField(max_digits=10, decimal_places=2)
     nebenkosten = models.DecimalField(max_digits=10, decimal_places=2)
     kaution = models.DecimalField(max_digits=10, decimal_places=2)
@@ -66,13 +66,14 @@ class Mietverhaeltnis(models.Model):
         today = datetime.date.today()
         if self.vertragsbeginn > today:
             return "future"
-        elif self.vertragsende < today:
+        elif self.vertragsende and self.vertragsende < today:
             return "past"
         else:
             return "current"
     
     def __str__(self):
-        return f"Mietverhältnis: {self.mieter.vorname} {self.mieter.nachname} ({self.vertragsbeginn} bis {self.vertragsende})"
+        end_date = self.vertragsende if self.vertragsende else "unbefristet"
+        return f"Mietverhältnis: {self.mieter.vorname} {self.mieter.nachname} ({self.vertragsbeginn} bis {end_date})"
 
 class Rechnung(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rechnungen_created", null=True, blank=True)
