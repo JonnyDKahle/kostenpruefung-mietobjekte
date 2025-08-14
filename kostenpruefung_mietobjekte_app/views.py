@@ -11,6 +11,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ██████████████████████████ LOCAL IMPORTS ████████████████████████████████████
@@ -311,7 +312,14 @@ def lieferant_create(request):
 
 @login_required
 def konto(request):
-    konten = Konto.objects.filter(created_by=request.user)
+    # Get all Konto entries for the user, ordered by newest first (buchungstag descending, then by id descending)
+    konten_list = Konto.objects.filter(created_by=request.user).order_by('-buchungstag', '-id')
+    
+    # Paginate the results - 100 entries per page
+    paginator = Paginator(konten_list, 100)
+    page_number = request.GET.get('page')
+    konten = paginator.get_page(page_number)
+    
     return render(request, 'kostenpruefung_mietobjekte_app/konto.html', {'konten': konten})
 
 @login_required

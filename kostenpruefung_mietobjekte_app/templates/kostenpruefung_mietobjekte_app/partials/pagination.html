@@ -1,0 +1,73 @@
+<!-- Reusable Pagination Component -->
+<div class="pagination-wrapper">
+    <div class="pagination-info">
+        {{ page_obj.paginator.count }} Einträge insgesamt
+        {% if page_obj.paginator.count > 0 %}
+            | Seite {{ page_obj.number }} von {{ page_obj.paginator.num_pages }}
+            | Einträge {{ page_obj.start_index }}–{{ page_obj.end_index }}
+        {% endif %}
+    </div>
+    <div class="pagination-controls">
+        <!-- First page -->
+        {% if page_obj.number > 1 %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn pagination-nav-btn first-last">Erste</a>
+        {% else %}
+            <span class="pagination-btn disabled first-last">Erste</span>
+        {% endif %}
+        
+        <!-- Previous page -->
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn pagination-nav-btn">‹ Zurück</a>
+        {% else %}
+            <span class="pagination-btn disabled pagination-nav-btn">‹ Zurück</span>
+        {% endif %}
+        
+        <!-- Page numbers -->
+        {% with page_obj.number as current_page %}
+        {% with page_obj.paginator.num_pages as total_pages %}
+            
+            <!-- Show first few pages if we're far from the beginning -->
+            {% if current_page > 7 %}
+                <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn">1</a>
+                {% if current_page > 8 %}
+                    <span class="pagination-ellipsis">...</span>
+                {% endif %}
+            {% endif %}
+            
+            <!-- Show pages around current page -->
+            {% for page_num in page_obj.paginator.page_range %}
+                {% if page_num >= current_page|add:-5 and page_num <= current_page|add:5 %}
+                    {% if page_num == current_page %}
+                        <span class="pagination-btn current">{{ page_num }}</span>
+                    {% else %}
+                        <a href="?page={{ page_num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn">{{ page_num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Show last few pages if we're far from the end -->
+            {% if current_page < total_pages|add:-6 %}
+                {% if current_page < total_pages|add:-7 %}
+                    <span class="pagination-ellipsis">...</span>
+                {% endif %}
+                <a href="?page={{ total_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn">{{ total_pages }}</a>
+            {% endif %}
+            
+        {% endwith %}
+        {% endwith %}
+        
+        <!-- Next page -->
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn pagination-nav-btn">Weiter ›</a>
+        {% else %}
+            <span class="pagination-btn disabled pagination-nav-btn">Weiter ›</span>
+        {% endif %}
+        
+        <!-- Last page -->
+        {% if page_obj.number < page_obj.paginator.num_pages %}
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="pagination-btn pagination-nav-btn first-last">Letzte</a>
+        {% else %}
+            <span class="pagination-btn disabled first-last">Letzte</span>
+        {% endif %}
+    </div>
+</div>

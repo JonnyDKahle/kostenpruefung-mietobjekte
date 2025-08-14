@@ -20,6 +20,11 @@
         <form action="{% url 'kostenpruefung_mietobjekte_app:konto_create' %}" method="get" style="margin-bottom: 16px;">
             <button class="action-btn" type="submit">Anlegen</button>
         </form>
+        
+        <!-- Pagination (Top) -->
+        {% with konten as page_obj %}
+            {% include 'kostenpruefung_mietobjekte_app/partials/pagination.html' %}
+        {% endwith %}
         <table class="object-table">
             <tr>
                 <th>Buchungstag</th>
@@ -67,10 +72,15 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9">Keine Kontobewegungen vorhanden.</td> <!-- Updated colspan -->
+                <td colspan="10">Keine Kontobewegungen vorhanden.</td>
             </tr>
             {% endfor %}
         </table>
+        
+        <!-- Pagination (Bottom) -->
+        {% with konten as page_obj %}
+            {% include 'kostenpruefung_mietobjekte_app/partials/pagination.html' %}
+        {% endwith %}
     </div>
 </div>
 </body>

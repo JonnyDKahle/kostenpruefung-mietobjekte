@@ -472,3 +472,107 @@ body { margin: 0; font-family: Arial, sans-serif; }
     font-style: italic;
     background-color: #f8f9fa;
 }
+
+/* Pagination Styles */
+.pagination-wrapper {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.pagination-info {
+    margin-bottom: 15px;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #495057;
+    transition: all 0.2s ease;
+    margin: 2px;
+}
+
+.pagination-btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #212529;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-btn.current {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: default;
+}
+
+.pagination-btn.current:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+    transform: none;
+}
+
+.pagination-btn:disabled,
+.pagination-btn.disabled {
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination-btn:disabled:hover,
+.pagination-btn.disabled:hover {
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+    color: #6c757d;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    color: #6c757d;
+    font-weight: 500;
+    margin: 2px;
+}
+
+.pagination-nav-btn {
+    min-width: 80px;
+    font-weight: 500;
+}
+
+.pagination-nav-btn.first-last {
+    min-width: 60px;
+}
