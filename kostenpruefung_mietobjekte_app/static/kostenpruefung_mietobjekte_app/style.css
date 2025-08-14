@@ -382,3 +382,93 @@ body { margin: 0; font-family: Arial, sans-serif; }
     border-top: 1px solid #eee;
     margin: 8px 0;
 }
+
+/* Kostenarten Table Styles */
+.kostenarten-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.kostenarten-table th {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.kostenarten-table th:first-child {
+    width: 70%;
+}
+
+.kostenarten-table th:last-child {
+    width: 30%;
+    text-align: center;
+}
+
+.kostenarten-table td {
+    border: 1px solid #dee2e6;
+    padding: 16px 20px;
+    vertical-align: middle;
+}
+
+.kostenarten-table td:last-child {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.kostentart-row {
+    transition: all 0.2s ease;
+}
+
+.kostentart-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.kostentart-row .kostenart-name {
+    font-weight: 500;
+    color: #333333;
+    font-size: 15px;
+    text-shadow: none;
+}
+
+.kostentart-row .objekt-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.kostentart-row .action-btn {
+    background-color: #ffffff;
+    color: #495057;
+    border: 1px solid #ced4da;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.kostentart-row .action-btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.kostenarten-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+    background-color: #f8f9fa;
+}
